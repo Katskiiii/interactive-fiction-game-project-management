@@ -1,5 +1,4 @@
 # introduction of game
-
 INTRO = [
     "Welcome to 'Where in Onslow College is Irene Indiana'.",
     "You are a new student at Onslow College eager to learn, however, another student, 'Indiana Irene' has gone missing.",
@@ -24,12 +23,24 @@ OPTIONS = {
     "Move right 1 square": "D",
 }
 
-
+# current position
 current_row = 2  # starting row
 current_column = 2  # starting column
 
-# prints introduction
+# function to check input validity
+def check_validity(invalid_1_or_2, column_or_row, max_row_or_column):
+    if invalid_1_or_2 == 1:
+        print("Invalid direction. Please try again.")
+        user_choice = input("Please make a choice:")
+        user_choice = user_choice.upper()
+    elif invalid_1_or_2 == 2:
+        while column_or_row == max_row_or_column:
+            print("You cannot move that way.")
+            user_choice = input("Please make a choice:")
+            user_choice = user_choice.upper()
+    return user_choice
 
+# prints introduction
 for sentence in INTRO:
     if sentence == INTRO[0]:
         print(sentence)
@@ -64,14 +75,22 @@ while True:
     if user_choice == OPTIONS["Move up 1 square"]:
         if current_row > 0:
             current_row -= 1
+        elif current_row == 0:
+            check_validity(2, current_row, 0)
     elif user_choice == OPTIONS["Move down 1 square"]:
         if current_row < 4:
             current_row += 1
+        elif current_row == 4:
+            check_validity(2, current_row, 4)
     elif user_choice == OPTIONS["Move left 1 square"]:
         if current_column > 0:
             current_column -= 1
+        elif current_column == 0:
+            check_validity(2, current_column, 0)
     elif user_choice == OPTIONS["Move right 1 square"]:
         if current_column < 4:
             current_column += 1
+        elif current_column == 4:
+            check_validity(2, current_column, 4)
     else:
-        print("Invalid direction. Please try again.")
+        check_validity(1, current_column, 0)
