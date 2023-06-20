@@ -10,9 +10,8 @@ INTRO = [
     "These will diminish your stamina but don’t worry because you can also find food or other items around the school that will refill your stamina.",
     "Stamina will also be essential for completing the teachers' quizzes.",
     "Make sure that you always have some stamina because once your stamina runs out, you’ll be sent home and won’t be able to continue your investigation.",
-    "Good luck, brave student! Find Irene and save the school!"
+    "Good luck, brave student! Find Irene and save school!"
 ]
-
 
 
 # game menu
@@ -28,16 +27,19 @@ current_row = 2  # starting row
 current_column = 2  # starting column
 
 # function to check input validity
-def check_validity(invalid_1_or_2, column_or_row, max_row_or_column):
+def check_validity(invalid_1_or_2, column_or_row, max_row_or_column, user_choice, option):
     if invalid_1_or_2 == 1:
-        print("Invalid direction. Please try again.")
-        user_choice = input("Please make a choice:")
-        user_choice = user_choice.upper()
+        while user_choice not in OPTIONS.values():
+            print("Invalid direction. Please try again.")
+            user_choice = input("Please make a choice:")
+            user_choice = user_choice.upper()
     elif invalid_1_or_2 == 2:
-        while column_or_row == max_row_or_column:
+        while column_or_row == max_row_or_column and user_choice == option:
             print("You cannot move that way.")
             user_choice = input("Please make a choice:")
             user_choice = user_choice.upper()
+            if user_choice not in OPTIONS.values():
+                user_choice = check_validity(1, current_column, 0, user_choice, OPTIONS["Move down 1 square"])
     return user_choice
 
 # prints introduction
@@ -50,6 +52,7 @@ for sentence in INTRO:
         input()
 
 # game loop
+user_choice = ""
 while True:
     print("\nMap of Onslow College. Your current position is marked with X.\n")
     # Display the board
@@ -70,27 +73,29 @@ while True:
     # asks the user to select an option from the main menu
     user_choice = input("Please make a choice:")
     user_choice = user_choice.upper()
+    
+    if user_choice not in OPTIONS.values():
+        user_choice = check_validity(1, current_column, 0, user_choice, OPTIONS["Move down 1 square"])
 
     # Update user's position based on input
     if user_choice == OPTIONS["Move up 1 square"]:
         if current_row > 0:
             current_row -= 1
         elif current_row == 0:
-            check_validity(2, current_row, 0)
-    elif user_choice == OPTIONS["Move down 1 square"]:
+            user_choice = check_validity(2, current_row, 0, user_choice, OPTIONS["Move up 1 square"])
+    if user_choice == OPTIONS["Move down 1 square"]:
         if current_row < 4:
             current_row += 1
         elif current_row == 4:
-            check_validity(2, current_row, 4)
-    elif user_choice == OPTIONS["Move left 1 square"]:
+            user_choice = check_validity(2, current_row, 4, user_choice, OPTIONS["Move down 1 square"])
+    if user_choice == OPTIONS["Move left 1 square"]:
         if current_column > 0:
             current_column -= 1
         elif current_column == 0:
-            check_validity(2, current_column, 0)
-    elif user_choice == OPTIONS["Move right 1 square"]:
+            user_choice = check_validity(2, current_column, 0, user_choice, OPTIONS["Move left 1 square"])
+    if user_choice == OPTIONS["Move right 1 square"]:
         if current_column < 4:
             current_column += 1
         elif current_column == 4:
-            check_validity(2, current_column, 4)
-    else:
-        check_validity(1, current_column, 0)
+            user_choice = check_validity(2, current_column, 4, user_choice, OPTIONS["Move right 1 square"])
+    user_choice = ""
