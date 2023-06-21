@@ -1,7 +1,3 @@
-import random
-
-stamina = 100
-
 # introduction of game
 INTRO = [
     "Welcome to 'Where in Onslow College is Irene Indiana'.",
@@ -46,18 +42,6 @@ def check_validity(invalid_1_or_2, column_or_row, max_row_or_column, user_choice
                 user_choice = check_validity(1, current_column, 0, user_choice, OPTIONS["Move down 1 square"])
     return user_choice
 
-
-# Function to handle finding items or encountering traps
-def handle_event():
-    if random.random() < 0.1:
-        event = random.choice(["item", "trap"])
-        if event == "item":
-            print("You found a stamina-boosting item!")
-            # Code to increase player's stamina
-        elif event == "trap":
-            print("You encountered a trap!")
-            # Code to decrease player's stamina
-
 # prints introduction
 for sentence in INTRO:
     if sentence == INTRO[0]:
@@ -70,7 +54,6 @@ for sentence in INTRO:
 # game loop
 user_choice = ""
 while True:
-    print("You currently have {} stamina points.".format(stamina))
     print("\nMap of Onslow College. Your current position is marked with X.\n")
     # Display the board
     for row in range(5):
@@ -98,25 +81,21 @@ while True:
     if user_choice == OPTIONS["Move up 1 square"]:
         if current_row > 0:
             current_row -= 1
-            handle_event()
         elif current_row == 0:
             user_choice = check_validity(2, current_row, 0, user_choice, OPTIONS["Move up 1 square"])
     if user_choice == OPTIONS["Move down 1 square"]:
         if current_row < 4:
             current_row += 1
-            handle_event()
         elif current_row == 4:
             user_choice = check_validity(2, current_row, 4, user_choice, OPTIONS["Move down 1 square"])
     if user_choice == OPTIONS["Move left 1 square"]:
         if current_column > 0:
             current_column -= 1
-            handle_event()
         elif current_column == 0:
             user_choice = check_validity(2, current_column, 0, user_choice, OPTIONS["Move left 1 square"])
     if user_choice == OPTIONS["Move right 1 square"]:
         if current_column < 4:
             current_column += 1
-            handle_event()
         elif current_column == 4:
             user_choice = check_validity(2, current_column, 4, user_choice, OPTIONS["Move right 1 square"])
     user_choice = ""
