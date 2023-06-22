@@ -73,29 +73,36 @@ while True:
     # asks the user to select an option from the main menu
     user_choice = input("Please make a choice:")
     user_choice = user_choice.upper()
-    
-    if user_choice not in OPTIONS.values():
-        user_choice = check_validity(1, current_column, 0, user_choice, OPTIONS["Move down 1 square"])
 
-    # Update user's position based on input
-    if user_choice == OPTIONS["Move up 1 square"]:
-        if current_row > 0:
-            current_row -= 1
-        elif current_row == 0:
-            user_choice = check_validity(2, current_row, 0, user_choice, OPTIONS["Move up 1 square"])
-    if user_choice == OPTIONS["Move down 1 square"]:
-        if current_row < 4:
-            current_row += 1
-        elif current_row == 4:
-            user_choice = check_validity(2, current_row, 4, user_choice, OPTIONS["Move down 1 square"])
-    if user_choice == OPTIONS["Move left 1 square"]:
-        if current_column > 0:
-            current_column -= 1
-        elif current_column == 0:
-            user_choice = check_validity(2, current_column, 0, user_choice, OPTIONS["Move left 1 square"])
-    if user_choice == OPTIONS["Move right 1 square"]:
-        if current_column < 4:
-            current_column += 1
-        elif current_column == 4:
-            user_choice = check_validity(2, current_column, 4, user_choice, OPTIONS["Move right 1 square"])
+    while True:
+        if user_choice == OPTIONS["Move up 1 square"]:
+            if current_row > 0:
+                current_row -= 1
+                break  # Break out of the inner loop and continue with the game loop
+            else:
+                user_choice = check_validity(2, current_row, 0, user_choice, OPTIONS["Move up 1 square"])
+        elif user_choice == OPTIONS["Move down 1 square"]:
+            if current_row < 4:
+                current_row += 1
+                break  # Break out of the inner loop and continue with the game loop
+            else:
+                user_choice = check_validity(2, current_row, 4, user_choice, OPTIONS["Move down 1 square"])
+        elif user_choice == OPTIONS["Move left 1 square"]:
+            if current_column > 0:
+                current_column -= 1
+                break  # Break out of the inner loop and continue with the game loop
+            else:
+                user_choice = check_validity(2, current_column, 0, user_choice, OPTIONS["Move left 1 square"])
+        elif user_choice == OPTIONS["Move right 1 square"]:
+            if current_column < 4:
+                current_column += 1
+                break  # Break out of the inner loop and continue with the game loop
+            else:
+                user_choice = check_validity(2, current_column, 4, user_choice, OPTIONS["Move right 1 square"])
+        else:
+            print("Invalid choice. Please try again.")
+            user_choice = input("Please make a choice:")
+            user_choice = user_choice.upper()
+
+    # Reset user_choice to an empty string
     user_choice = ""
