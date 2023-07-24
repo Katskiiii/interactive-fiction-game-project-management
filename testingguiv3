@@ -38,6 +38,7 @@ def handle_event(stamina_points):
         if event == "item":
             if stamina_points > 80:
                 stamina_points = min(stamina_points + 20, 100)
+                print("You found a sandwich! You gained 20 stamina points!")
             elif stamina_points <= 80:
                 print("You found a sandwich! You gained 20 stamina points!")
                 stamina_points += 20
