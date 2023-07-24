@@ -1,3 +1,5 @@
+import random
+
 # introduction of game
 INTRO = [
     "Welcome to 'Where in Onslow College is Irene Indiana'.",
@@ -26,6 +28,29 @@ OPTIONS = {
 current_row = 2  # starting row
 current_column = 2  # starting column
 
+# stamina_level
+stamina_points = 100
+
+
+# Function to handle finding items or encountering traps
+def handle_event(stamina_points):
+    if random.random() <= 0.1:
+        event = random.choice(["item", "trap"])
+        if event == "item":
+            if stamina_points > 80:
+                stamina_points = min(stamina_points + 20, 100) 
+            elif stamina_points <= 80:
+                print("You found a sandwich! You gained 20 stamina points!")
+                stamina_points += 20
+            elif stamina_points == 100:
+                print("You found a sandwich but you weren't hungry and threw it away.")
+        elif event == "trap":
+            print("You encountered a trap! You lost 20 stamina points!")
+            stamina_points -= 20
+            if stamina_points <= 0:
+                raise ValueError
+    return stamina_points
+
 # function to check input validity
 def check_validity(invalid_1_or_2, column_or_row, max_row_or_column, user_choice, option):
     if invalid_1_or_2 == 1:
@@ -52,57 +77,65 @@ for sentence in INTRO:
         input()
 
 # game loop
-user_choice = ""
-while True:
-    print("\nMap of Onslow College. Your current position is marked with X.\n")
-    # Display the board
-    for row in range(5):
-        for column in range(5):
-            if row == current_row and column == current_column:
-                # user's position
-                print("X", end=" ")
-            else:
-                # empty cell
-                print(".", end=" ")
-        # newline after each row
-        print()
-
-    # Get user input for movement
-    for option in OPTIONS:
-        print("{}){}".format(OPTIONS[option], option))
-    # asks the user to select an option from the main menu
-    user_choice = input("Please make a choice:")
-    user_choice = user_choice.upper()
-
-    while True:
-        if user_choice == OPTIONS["Move up 1 square"]:
-            if current_row > 0:
-                current_row -= 1
-                break  # Break out of the inner loop and continue with the game loop
-            else:
-                user_choice = check_validity(2, current_row, 0, user_choice, OPTIONS["Move up 1 square"])
-        elif user_choice == OPTIONS["Move down 1 square"]:
-            if current_row < 4:
-                current_row += 1
-                break  # Break out of the inner loop and continue with the game loop
-            else:
-                user_choice = check_validity(2, current_row, 4, user_choice, OPTIONS["Move down 1 square"])
-        elif user_choice == OPTIONS["Move left 1 square"]:
-            if current_column > 0:
-                current_column -= 1
-                break  # Break out of the inner loop and continue with the game loop
-            else:
-                user_choice = check_validity(2, current_column, 0, user_choice, OPTIONS["Move left 1 square"])
-        elif user_choice == OPTIONS["Move right 1 square"]:
-            if current_column < 4:
-                current_column += 1
-                break  # Break out of the inner loop and continue with the game loop
-            else:
-                user_choice = check_validity(2, current_column, 4, user_choice, OPTIONS["Move right 1 square"])
-        else:
-            print("Invalid choice. Please try again.")
-            user_choice = input("Please make a choice:")
-            user_choice = user_choice.upper()
-
-    # Reset user_choice to an empty string
+try:
     user_choice = ""
+    while True:
+        print("You have {} stamina points.".format(stamina_points))
+        print("\nMap of Onslow College. Your current position is marked with X.\n")
+        # Display the board
+        for row in range(5):
+            for column in range(5):
+                if row == current_row and column == current_column:
+                    # user's position
+                    print("X", end=" ")
+                else:
+                    # empty cell
+                    print(".", end=" ")
+            # newline after each row
+            print()
+
+        # Get user input for movement
+        for option in OPTIONS:
+            print("{}){}".format(OPTIONS[option], option))
+        # asks the user to select an option from the main menu
+        user_choice = input("Please make a choice:")
+        user_choice = user_choice.upper()
+
+        while True:
+            if user_choice == OPTIONS["Move up 1 square"]:
+                if current_row > 0:
+                    current_row -= 1
+                    stamina_points = handle_event(stamina_points)
+                    break
+                else:
+                    user_choice = check_validity(2, current_row, 0, user_choice, OPTIONS["Move up 1 square"])
+            elif user_choice == OPTIONS["Move down 1 square"]:
+                if current_row < 4:
+                    current_row += 1
+                    stamina_points = handle_event(stamina_points)
+                    break 
+                else:
+                    user_choice = check_validity(2, current_row, 4, user_choice, OPTIONS["Move down 1 square"])
+            elif user_choice == OPTIONS["Move left 1 square"]:
+                if current_column > 0:
+                    current_column -= 1
+                    stamina_points = handle_event(stamina_points)
+                    break
+                else:
+                    user_choice = check_validity(2, current_column, 0, user_choice, OPTIONS["Move left 1 square"])
+            elif user_choice == OPTIONS["Move right 1 square"]:
+                if current_column < 4:
+                    current_column += 1
+                    stamina_points = handle_event(stamina_points)
+                    break
+                else:
+                    user_choice = check_validity(2, current_column, 4, user_choice, OPTIONS["Move right 1 square"])
+            else:
+                print("Invalid choice. Please try again.")
+                user_choice = input("Please make a choice:")
+                user_choice = user_choice.upper()
+
+        # Reset user_choice to an empty string
+        user_choice = ""
+except ValueError:
+    print("You've reach 0 stamina! You fainted, got sent home and could no longer continue in your search for Irene Indiana. Now, you'll never know the truth about what happened to her...GAME OVER")
