@@ -98,6 +98,8 @@ def update_gui():
 
     stamina_label.config(text="Stamina: {}".format(stamina_points))
 
+    
+
 # Function to handle user input from the GUI
 def on_choice_button_click(choice):
     global current_row, current_column, stamina_points
@@ -119,6 +121,7 @@ def on_choice_button_click(choice):
             stamina_points = handle_event_with_animation(stamina_points)
     update_gui()
 
+
 # Function to print the introduction one sentence at a time with prompt for user input
 def print_intro(index=0):
     global animation_label, sandwich_photo, warning_photo  # Access the global variables
@@ -128,6 +131,13 @@ def print_intro(index=0):
     else:
         intro_label.config(text="")  # Clear the intro label after the introduction is over
         root.unbind("<Return>")  # Unbind the Enter key after the introduction is over
+
+        # Create the "Map of Onslow College" label above the board/map
+        map_title_label = tk.Label(root, text="Map of Onslow College", font=("Arial", 14, "bold"))
+        map_title_label.pack()
+
+        # Show the board/map
+        update_gui()
 
         # Create the animation label
         animation_label = tk.Label(root)
@@ -143,10 +153,13 @@ def print_intro(index=0):
         sandwich_photo = load_sandwich_image()
         warning_photo = load_warning_image()
 
+        # Add the movement prompt label below the stamina label but above the movement buttons
+        movement_prompt_label = tk.Label(root, text="Choose a direction to move in", font=("Arial", 12))
+        movement_prompt_label.pack()
+
         for option, choice in OPTIONS.items():
             button = tk.Button(root, text=option, command=lambda choice=choice: on_choice_button_click(choice))
             button.pack()
-        update_gui()  # Show the map, stamina counter, and controls
 
 # Create the main window
 root = tk.Tk()
