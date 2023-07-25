@@ -60,26 +60,22 @@ def handle_event_with_animation(stamina_points):
             if stamina_points > 80:
                 stamina_points = min(stamina_points + 20, 100)
             elif stamina_points <= 80:
-                print("You found a sandwich! You gained 20 stamina points!")
                 stamina_points += 20
 
                 # Show sandwich animation
                 animation_label.config(image=sandwich_photo)
-                message_label.config(text="You found a sandwich! You gained 20 stamina points!")
+                message_label.config(text="You found a sandwich! You ate it and gained 20 stamina points!")
                 root.update_idletasks()
                 root.after(1500, lambda: animation_label.config(image=""))
                 root.after(1500, lambda: message_label.config(text=""))
             elif stamina_points == 100:
                 print("You found a sandwich but you weren't hungry and threw it away.")
         elif event == "trap":
-            print("You encountered a trap! You lost 20 stamina points!")
             stamina_points -= 20
-            if stamina_points <= 0:
-                raise ValueError
 
             # Show warning animation
             animation_label.config(image=warning_photo)
-            message_label.config(text="You encountered a trap! You lost 20 stamina points!")
+            message_label.config(text="You encountered a trap! You tripped and lost 20 stamina points!")
             root.update_idletasks()
             root.after(1500, lambda: animation_label.config(image=""))
             root.after(1500, lambda: message_label.config(text=""))
