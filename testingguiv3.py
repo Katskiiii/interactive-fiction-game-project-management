@@ -53,7 +53,7 @@ def load_warning_image():
 # Function to handle finding items or encountering traps with animation
 def handle_event_with_animation(stamina_points):
     global animation_label, message_label, sandwich_photo, warning_photo  # Access the global variables
-    if random.random() <= 0.9:
+    if random.random() <= 0.25:
         event = random.choice(["item", "trap"])
         if event == "item":
             if stamina_points > 80:
