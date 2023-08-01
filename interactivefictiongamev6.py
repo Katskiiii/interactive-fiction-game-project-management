@@ -2,6 +2,7 @@ import random
 import tkinter as tk
 from PIL import Image, ImageTk
 
+
 # Introduction of game
 INTRO = [
     "Welcome to 'Where in Onslow College is Irene Indiana'.",
@@ -15,6 +16,17 @@ INTRO = [
     "Stamina will also be essential for completing the teachers' quizzes.",
     "Make sure that you always have some stamina because once your stamina runs out, you’ll be sent home and won’t be able to continue your investigation.",
     "Good luck, brave student! Find Irene and save school!"
+]
+
+# Additional text for the art studio and Ms. Kay's introduction
+ART_STUDIO_INTRO = [
+    "You come across the art studio. You decide to start your clue-finding journey here and go inside to hopefully talk to whoever is inside.",
+    "Upon entering, the strong smell of paint and coffee hits you and a woman sitting at her desk looks up at you.",
+    "\"A face I haven't seen before! I'm Ms. Kay, what brings you to my humble studio?\" A trill voice says.",
+    "An eccentric-looking, paint-splattered face stares at yours as she walks up to you. Her hair is disheveled and her glasses sit crooked on her face but she looks kind and welcoming somehow.",
+    "You explain to her you are a new student and are looking for Irene. \"Ah...Irene. Such a shock. She was such an amazing student, it's so unlike her to disappear like this. Have you come here to look for her?\" Ms. Kay sighs.",
+    "You ask if she would have any idea about her whereabouts. \"Hmmm...I don't know where she could be...but I do know that she was in here all the time working on a new piece.",
+    "It could be of some help, and I would let you see it but first I want to see if you're worthy! Get all the questions right in my quiz and I'll let you see Irene's latest painting.\""
 ]
 
 # Game menu
@@ -38,106 +50,6 @@ message_label = None
 sandwich_photo = None
 warning_photo = None
 
-# Function to load sandwich image
-def load_sandwich_image():
-    sandwich_img = Image.open("sandwich.png")
-    sandwich_img = sandwich_img.resize((50, 50))  # Resize the image
-    return ImageTk.PhotoImage(sandwich_img)
-
-# Function to load warning image
-def load_warning_image():
-    warning_img = Image.open("warning.png")
-    warning_img = warning_img.resize((50, 50))  # Resize the image
-    return ImageTk.PhotoImage(warning_img)
-
-# Global variable to track if the Art quiz is completed
-art_quiz_completed = False
-
-# Art quiz questions and answers
-ART_QUIZ = [
-    {
-        "question": "Van Gogh famously cut off what part of his body?",
-        "options": ["His ear", "His nose", "His finger", "His toe"],
-        "answer": "His ear"
-    },
-    {
-        "question": "What type of paint dries the slowest?",
-        "options": ["Acrylic paint", "Watercolor", "Oil paint", "Gouache paint"],
-        "answer": "Oil paint"
-    },
-    {
-        "question": "Who painted the ceiling of the Sistine Chapel?",
-        "options": ["Leonardo da Vinci", "Raphael", "Michelangelo", "Donatello"],
-        "answer": "Michelangelo"
-    }
-]
-
-# Function to handle the Art quiz
-def art_quiz():
-    global stamina_points, art_quiz_completed
-    if not art_quiz_completed:
-        quiz_score = 0
-        for question_data in ART_QUIZ:
-            question = question_data["question"]
-            options = question_data["options"]
-            correct_answer = question_data["answer"]
-
-            # Display the question and options on the message label
-            message_label.config(text=question + "\n\n" + "\n".join(f"{i + 1}. {option}" for i, option in enumerate(options)))
-
-            # Wait for the player's answer
-            root.wait_variable(answer_var)
-
-            # Check the answer
-            if answer_var.get() == correct_answer:
-                quiz_score += 1
-            else:
-                stamina_points -= 20
-                message_label.config(text="Incorrect answer. You lost 20 stamina points. Try again.")
-                root.update_idletasks()
-                root.after(2000, lambda: message_label.config(text=""))
-
-                # Player needs to redo the quiz if they didn't answer all questions correctly
-                break
-
-        if quiz_score == len(ART_QUIZ):
-            # Player successfully completed the quiz
-            art_quiz_completed = True
-            message_label.config(text="Congratulations! You completed the Art quiz.\n"
-                                      "Ms. Kay reveals a piece of art with a hidden message.\n"
-                                      "Irene's favorite spot in school is the science labs!")
-            root.update_idletasks()
-            root.after(4000, lambda: message_label.config(text=""))
-
-# Function to handle finding items or encountering traps with animation
-def handle_event_with_animation(stamina_points):
-    global animation_label, message_label, sandwich_photo, warning_photo  # Access the global variables
-    if random.random() <= 0.25:
-        event = random.choice(["item", "trap"])
-        if event == "item":
-            if stamina_points > 80:
-                stamina_points = min(stamina_points + 20, 100)
-            elif stamina_points <= 80:
-                stamina_points += 20
-
-                # Show sandwich animation
-                animation_label.config(image=sandwich_photo)
-                message_label.config(text="You found a sandwich! You ate it and gained 20 stamina points!")
-                root.update_idletasks()
-                root.after(1500, lambda: animation_label.config(image=""))
-                root.after(1500, lambda: message_label.config(text=""))
-            elif stamina_points == 100:
-                print("You found a sandwich but you weren't hungry and threw it away.")
-        elif event == "trap":
-            stamina_points -= 20
-
-            # Show warning animation
-            animation_label.config(image=warning_photo)
-            message_label.config(text="You encountered a trap! You tripped and lost 20 stamina points!")
-            root.update_idletasks()
-            root.after(1500, lambda: animation_label.config(image=""))
-            root.after(1500, lambda: message_label.config(text=""))
-    return stamina_points
 
 # Function to update the GUI with the current game state
 def update_gui():
@@ -172,12 +84,6 @@ def on_choice_button_click(choice):
     elif choice == OPTIONS["Move right 1 square"]:
         new_col += 1
 
-    # Check if the new position is the Art Studio
-    if (new_row, new_col) == (3, 4):
-        # Handle the Art quiz
-        art_quiz()
-        return
-
     # Check if the new position is within the boundaries
     if is_within_boundaries(new_row, new_col):
         current_row, current_column = new_row, new_col
@@ -188,15 +94,61 @@ def on_choice_button_click(choice):
         root.update_idletasks()
         root.after(2000, lambda: message_label.config(text=""))
 
+    # Check if the player has taken their second move and show the art studio introduction
+    if current_row != 2 or current_column != 2:
+        print_art_studio_intro()
+        return
 
     update_gui()
+
+# Function to load sandwich image
+def load_sandwich_image():
+    sandwich_img = Image.open("sandwich.png")
+    sandwich_img = sandwich_img.resize((50, 50))  # Resize the image
+    return ImageTk.PhotoImage(sandwich_img)
+
+# Function to load warning image
+def load_warning_image():
+    warning_img = Image.open("warning.png")
+    warning_img = warning_img.resize((50, 50))  # Resize the image
+    return ImageTk.PhotoImage(warning_img)
+
+# Function to handle finding items or encountering traps with animation
+def handle_event_with_animation(stamina_points):
+    global animation_label, message_label, sandwich_photo, warning_photo  # Access the global variables
+    if random.random() <= 0.25:
+        event = random.choice(["item", "trap"])
+        if event == "item":
+            if stamina_points > 80:
+                stamina_points = min(stamina_points + 20, 100)
+            elif stamina_points <= 80:
+                stamina_points += 20
+
+                # Show sandwich animation
+                animation_label.config(image=sandwich_photo)
+                message_label.config(text="You found a sandwich! You ate it and gained 20 stamina points!")
+                root.update_idletasks()
+                root.after(1500, lambda: animation_label.config(image=""))
+                root.after(1500, lambda: message_label.config(text=""))
+            elif stamina_points == 100:
+                print("You found a sandwich but you weren't hungry and threw it away.")
+        elif event == "trap":
+            stamina_points -= 20
+
+            # Show warning animation
+            animation_label.config(image=warning_photo)
+            message_label.config(text="You encountered a trap! You tripped and lost 20 stamina points!")
+            root.update_idletasks()
+            root.after(1500, lambda: animation_label.config(image=""))
+            root.after(1500, lambda: message_label.config(text=""))
+    return stamina_points
 
 # Function to print the introduction one sentence at a time with prompt for user input
 def print_intro(index=0):
     global animation_label, sandwich_photo, warning_photo  # Access the global variables
     if index < len(INTRO):
         intro_label.config(text=INTRO[index] + "\n\nPress Enter to continue")
-        root.bind("<Return>", lambda event, i=index: print_intro(i+1))  # Bind Enter key to proceed to the next sentence
+        root.bind("<Return>", lambda event, i=index: print_intro(i + 1))  # Bind Enter key to proceed to the next sentence
     else:
         intro_label.config(text="")  # Clear the intro label after the introduction is over
         root.unbind("<Return>")  # Unbind the Enter key after the introduction is over
@@ -220,6 +172,20 @@ def print_intro(index=0):
             button.pack()
         update_gui()  # Show the map, stamina counter, and controls
 
+# Function to print the art studio introduction one sentence at a time with prompt for user input
+def print_art_studio_intro(index=0):
+    if index < len(ART_STUDIO_INTRO):
+        intro_label.config(text=ART_STUDIO_INTRO[index] + "\n\nPress Enter to continue")
+        root.bind("<Return>", lambda event, i=index: print_art_studio_intro(i + 1))
+    else:
+        intro_label.config(text="")
+        root.unbind("<Return>")  # Unbind the Enter key after the introduction is over
+
+        # Continue with the game controls and map update
+        for option, choice in OPTIONS.items():
+            button = tk.Button(root, text=option, command=lambda choice=choice: on_choice_button_click(choice))
+            button.pack()
+        update_gui()
 
 # Create the main window
 root = tk.Tk()
@@ -237,9 +203,6 @@ stamina_label.pack()
 
 # Start printing the introduction
 print_intro()
-
-# Create a variable to store the player's answer in the quiz
-answer_var = tk.StringVar()
 
 # Start the GUI event loop
 root.mainloop()

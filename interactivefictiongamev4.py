@@ -1,4 +1,3 @@
-
 import random
 import tkinter as tk
 from PIL import Image, ImageTk
@@ -39,7 +38,6 @@ message_label = None
 sandwich_photo = None
 warning_photo = None
 
-
 # Function to load sandwich image
 def load_sandwich_image():
     sandwich_img = Image.open("sandwich.png")
@@ -52,7 +50,77 @@ def load_warning_image():
     warning_img = warning_img.resize((50, 50))  # Resize the image
     return ImageTk.PhotoImage(warning_img)
 
-# Function to handle finding items or encountering traps with animation
+# Global variable to track if the Art quiz is completed
+art_quiz_completed = False
+
+# Other variables
+clue_label = None
+move_count = 0
+
+
+# Art quiz questions and answers
+ART_QUIZ = [
+    {
+        "question": "Van Gogh famously cut off what part of his body?",
+        "options": ["His ear", "His nose", "His finger", "His toe"],
+        "answer": "His ear"
+    },
+    {
+        "question": "What type of paint dries the slowest?",
+        "options": ["Acrylic paint", "Watercolor", "Oil paint", "Gouache paint"],
+        "answer": "Oil paint"
+    },
+    {
+        "question": "Who painted the ceiling of the Sistine Chapel?",
+        "options": ["Leonardo da Vinci", "Raphael", "Michelangelo", "Donatello"],
+        "answer": "Michelangelo"
+    }
+]
+
+# Function to handle the Art quiz
+def art_quiz():
+    global stamina_points, art_quiz_completed
+    if not art_quiz_completed:
+        quiz_score = 0
+        for question_data in ART_QUIZ:
+            question = question_data["question"]
+            options = question_data["options"]
+            correct_answer = question_data["answer"]
+
+            # Display the question and options on the message label
+            message_label.config(text=question + "\n\n" + "\n".join(f"{i + 1}. {option}" for i, option in enumerate(options)))
+
+            # Wait for the player's answer
+            root.wait_variable(answer_var)
+
+            # Check the answer
+            if answer_var.get() == correct_answer:
+                quiz_score += 1
+            else:
+                stamina_points -= 20
+                message_label.config(text="Oh no you got a question wrong! Let's restart.")
+                root.update_idletasks()
+                root.after(2000, lambda: message_label.config(text=""))
+
+                # Player needs to restart the quiz
+                return
+
+        if quiz_score == len(ART_QUIZ):
+            # Player successfully completed the quiz
+            art_quiz_completed = True
+            message_label.config(text="Impressive! I didn't think a new student would know this much about art.\n"
+                                      "Well, okay, here is Irene's last painting before she went missing.\n"
+                                      "I hope it helps you to find her.")
+            root.update_idletasks()
+            root.after(4000, lambda: message_label.config(text=""))
+
+            # Reveal the clue about Irene's favorite place
+            clue_label.pack()
+            root.update_idletasks()
+            root.after(4000, lambda: clue_label.config(text="You place it down on a nearby desk. The painting seems to be an abstract perception of...beakers and tubes?\n"
+                                                            "You notice written in the corner, is very small but neat writing. You look closer at it to see that it says \"my favourite place here...\".\n"
+                                                            "You think that this can only mean one place. The science lab. You decide to head there next."))
+
 def handle_event_with_animation(stamina_points):
     global animation_label, message_label, sandwich_photo, warning_photo  # Access the global variables
     if random.random() <= 0.25:
@@ -84,6 +152,8 @@ def handle_event_with_animation(stamina_points):
 
 # Function to update the GUI with the current game state
 def update_gui():
+    global current_row, current_column
+
     map_text = ""
     for row in range(5):
         for col in range(5):
@@ -96,9 +166,47 @@ def update_gui():
 
     stamina_label.config(text="Stamina: {}".format(stamina_points))
 
+    # Check if the player encounters the art studio
+    if move_count == 2:
+        # Remove the movement buttons and display Art Studio text
+        for button in root.winfo_children():
+            button.pack_forget()
+        root.unbind("<Return>")  # Unbind Enter key
+
+        # Display Art Studio text one sentence at a time
+        art_studio_text = [
+            "You come across the art studio. You decide to start your clue-finding journey here and go inside to hopefully talk to whoever is inside.",
+            "Upon entering, the strong smell of paint and coffee hits you and a woman sitting at her desk looks up at you.",
+            "\"A face I haven't seen before! I'm Ms. Kay, what brings you to my humble studio?\" A trill voice says.",
+            "An eccentric-looking, paint-splattered face stares at yours as she walks up to you. Her hair is dishevelled and her glasses sit crooked on her face but she looks kind and welcoming somehow.",
+            "You explain to her you are a new student and are looking for Irene.",
+            "\"Ah...Irene. Such a shock. She was such an amazing student, it's so unlike her to disappear like this. Have you come here to look for her?\" Ms. Kay sighs.",
+            "You ask if her she would have any idea on her whereabouts.",
+            "\"Hmmm...I don't know where she could be...but I do know that she was in here all the time working on a new piece.",
+            "It could be of some help, and I would let you see it but first I want to see if you're worthy! Get all the questions right in my quiz and I'll let you see Irene's latest painting.\""
+        ]
+
+        def show_next_sentence(index=0):
+            if index < len(art_studio_text):
+                message_label.config(text=art_studio_text[index])
+                root.update_idletasks()
+                root.after(3000, lambda: show_next_sentence(index + 1))
+            else:
+                # Start the Art quiz
+                art_quiz()
+                # Update the GUI after the quiz is completed
+                update_gui()
+        show_next_sentence()
+    else:
+        # Update the GUI in case the player didn't encounter the art studio
+        root.update_idletasks()
+
 # Function to handle user input from the GUI
 def on_choice_button_click(choice):
-    global current_row, current_column, stamina_points
+    global current_row, current_column, stamina_points, move_count
+
+    # Increment move count
+    move_count += 1
 
     # Function to check if the new position is within the boundaries of the map
     def is_within_boundaries(row, col):
@@ -119,13 +227,13 @@ def on_choice_button_click(choice):
     if is_within_boundaries(new_row, new_col):
         current_row, current_column = new_row, new_col
         stamina_points = handle_event_with_animation(stamina_points)
+        update_gui()  # Call update_gui() after the player's move
     else:
         # Show the message if the new position is outside the map boundaries
         message_label.config(text="You can't move that way now, please pick a different direction.")
         root.update_idletasks()
         root.after(2000, lambda: message_label.config(text=""))
 
-    update_gui()
 
 # Function to print the introduction one sentence at a time with prompt for user input
 def print_intro(index=0):
@@ -172,6 +280,9 @@ stamina_label.pack()
 
 # Start printing the introduction
 print_intro()
+
+# Create a variable to store the player's answer in the quiz
+answer_var = tk.StringVar()
 
 # Start the GUI event loop
 root.mainloop()
