@@ -38,6 +38,13 @@ OPTIONS = {
     "Move right 1 square": "D",
 }
 
+# Additional text after the quiz is completed
+AFTER_QUIZ_TEXT = [
+    "\"Impressive! I didn't think a new student would know this much about art. Well, okay, here is Irene's last painting before she went missing.\" Ms. Kay hands over a large canvas.",
+    "You place it down on a nearby desk. The painting seems to be an abstract perception of...beakers and tubes?",
+    "You notice written in the corner, is very small but neat writing. You look closer at it to see that it says \"my favourite place here...\".",
+    "You think that this can only mean one place. The science lab. You decide to head there next."
+]
 
 # List of quiz questions and their possible answers
 QUIZ_QUESTIONS = [
@@ -257,14 +264,14 @@ def print_art_studio_intro(index=0):
     
 # Function to handle the quiz
 def handle_quiz():
-    global stamina_points, message_label, button_frame, game_state
+    global stamina_points, message_label, button_frame, game_state, stamina_label
 
     quiz_window = tk.Toplevel(root)
     quiz_window.title("Art Quiz")
 
     # Function to check the quiz answers
     def check_answers():
-        global quiz_attempts, stamina_points, message_label
+        global quiz_attempts, stamina_points, message_label, stamina_label
 
         # Get the selected answer for each question
         selected_answers = [var.get() for var in answer_vars]
@@ -273,18 +280,22 @@ def handle_quiz():
         if all(selected_answer == question["correct_answer"] for selected_answer, question in zip(selected_answers, QUIZ_QUESTIONS)):
             # Player answered all questions correctly
             stamina_points = handle_event_with_animation(stamina_points)  # Show the animation and update stamina
+            stamina_label.config(text="Stamina: {}".format(stamina_points))  # Update the stamina label
             quiz_window.destroy()  # Close the quiz window
-            # Display the "Impressive!" message above the board
-            intro_label.config(text="Impressive! I didn't think a new student would know this much about art. Well, okay, here is Irene's last painting before she went missing. I hope it helps you to find her.")
+
+            # Display the "Impressive!" message above the board one sentence at a time
+            print_after_quiz_text()
         else:
             # Player got a question wrong, deduct 20 stamina points and ask to retry
-            message_label.config(text="Oh no you got a question wrong! Let's restart")
             stamina_points -= 20
+            stamina_label.config(text="Stamina: {}".format(stamina_points))  # Update the stamina label
+            message_label.config(text="Oh no you got a question wrong! You lost 20 stamina. Let's restart")
             root.update_idletasks()
             root.after(2000, lambda: message_label.config(text=""))
             # Clear the selected answers
             for var in answer_vars:
                 var.set(None)
+
 
     # Create answer variables for each question
     answer_vars = [tk.StringVar() for _ in QUIZ_QUESTIONS]
@@ -307,7 +318,31 @@ def handle_quiz():
     # Update the game state to "quiz" while the quiz is displayed
     game_state = "quiz"
 
+def print_after_quiz_text(index=0):
+    if index < len(AFTER_QUIZ_TEXT):
+        intro_label.config(text=AFTER_QUIZ_TEXT[index] + "\n\nPress Enter to continue")
+        root.bind("<Return>", lambda event, i=index: print_after_quiz_text(i + 1))
+    else:
+        intro_label.config(text="")
+        root.unbind("<Return>")  # Unbind the Enter key after the text is displayed
 
+        # Directly handle the movement to the science lab after the quiz text is over
+        handle_movement_to_science_lab()
+
+        update_gui()
+
+# Function to handle the movement to the science lab after the quiz text is displayed
+def handle_movement_to_science_lab():
+    global game_state
+
+    # Set the player's position to the science lab (assumed position)
+    current_row = 3
+    current_column = 2
+
+    # Update the game state to "gameplay" for movement after the quiz text is displayed
+    game_state = "gameplay"
+
+    update_gui()
 
 # Create the main window
 root = tk.Tk()

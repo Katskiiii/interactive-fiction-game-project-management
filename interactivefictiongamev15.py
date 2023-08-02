@@ -19,6 +19,21 @@ INTRO = [
     "Good luck, brave student! Find Irene and save school!"
 ]
 
+SCIENCE_LAB_INTRO = [
+    "You finally find the science lab and walk inside. Hunched over a desk with a plethora of different coloured liquids and pieces of equipment is a strange man wearing safety glasses and a white lab coat.",
+    "You walk up to him and ask if he’s the science teacher. \"Why yes, I am. I don’t think I’ve ever seen you in class before...I’m Mr. Green, pleased to meet you. What can I do for you?\"",
+    "You introduce yourself as the new student looking for Irene. You tell him of Irene’s painting and ask him if he knew anything that could explain why Irene’s favourite place was the science lab.",
+    "His face goes 2 shades paler... \"I’ll show you a secret...but only if you get 100% on my science quiz...\""
+]
+
+# Additional text after the science quiz is completed
+AFTER_SCIENCE_QUIZ_TEXT = [
+    "\"Wow, you really know your stuff! I'm impressed! As promised, here's the secret I'll share with you...\"",
+    "Mr. Green opens a drawer and pulls out a small diary, handing it to you. \"This is Irene's personal diary. She often wrote her thoughts and feelings in here. Maybe it will provide some insight into her disappearance.\"",
+    "You thank Mr. Green for his help, and with the diary in your hand, you feel more determined to find Irene and unravel the mystery.",
+    "You leave the science lab and continue your search for Irene, following the clues left behind..."
+]
+
 # Additional text for the art studio and Ms. Kay's introduction
 ART_STUDIO_INTRO = [
     "You come across the art studio. You decide to start your clue-finding journey here and go inside to hopefully talk to whoever is inside.",
@@ -38,6 +53,13 @@ OPTIONS = {
     "Move right 1 square": "D",
 }
 
+# Additional text after the quiz is completed
+AFTER_QUIZ_TEXT = [
+    "\"Impressive! I didn't think a new student would know this much about art. Well, okay, here is Irene's last painting before she went missing.\" Ms. Kay hands over a large canvas.",
+    "You place it down on a nearby desk. The painting seems to be an abstract perception of...beakers and tubes?",
+    "You notice written in the corner, is very small but neat writing. You look closer at it to see that it says \"my favourite place here...\".",
+    "You think that this can only mean one place. The science lab. You decide to head there next."
+]
 
 # List of quiz questions and their possible answers
 QUIZ_QUESTIONS = [
@@ -58,6 +80,27 @@ QUIZ_QUESTIONS = [
     }
 ]
 
+# List of science quiz questions and their possible answers
+SCIENCE_QUIZ_QUESTIONS = [
+    {
+        "question": "What is the chemical symbol for water?",
+        "options": ["H2O", "CO2", "NaCl", "O2"],
+        "correct_answer": "H2O"
+    },
+    {
+        "question": "Which gas do plants absorb from the atmosphere?",
+        "options": ["Oxygen", "Carbon dioxide", "Nitrogen", "Hydrogen"],
+        "correct_answer": "Carbon dioxide"
+    },
+    {
+        "question": "What is the largest organ of the human body?",
+        "options": ["Liver", "Heart", "Skin", "Brain"],
+        "correct_answer": "Skin"
+    }
+]
+
+# Declare a set to store the visited positions on the board
+visited_positions = set()
 
 # Current position
 current_row = 2  # starting row
@@ -98,32 +141,41 @@ def update_gui():
 
     stamina_label.config(text="Stamina: {}".format(stamina_points))
 
-    # Disable the movement buttons during the art studio intro
-    for widget in button_frame.winfo_children():
-        widget["state"] = "normal" if game_state == "gameplay" else "disabled"
+    # Disable the movement buttons during introductions, quizzes, and dialogues
+    if game_state in ["intro", "art_studio_intro", "quiz", "science_lab_intro", "science_quiz"]:
+        for widget in button_frame.winfo_children():
+            widget["state"] = "disabled"
+    else:
+        for widget in button_frame.winfo_children():
+            widget["state"] = "normal"
+
+# Function to handle game state changes and display appropriate dialogs
+def handle_game_state():
+    global game_state
+
+    if game_state == "intro":
+        print_intro()
+    elif game_state == "art_studio_intro":
+        print_art_studio_intro()
+    elif game_state == "quiz":
+        handle_quiz()
+    elif game_state == "science_lab_intro":
+        print_science_lab_intro()
+    elif game_state == "science_quiz":
+        handle_science_quiz()
+    else:
+        update_gui()
 
 
 # Function to handle user input from the GUI
 def on_choice_button_click(choice):
-    global current_row, current_column, stamina_points, visited_art_studio, move_count, game_state
+    global current_row, current_column, stamina_points, visited_art_studio, move_count, game_state, visited_positions
 
     # Function to check if the new position is within the boundaries of the map
     def is_within_boundaries(row, col):
         return 0 <= row < 5 and 0 <= col < 5
 
-    # Check if the buttons should be active based on the game state
-    if game_state != "gameplay":
-        return
-
-    move_count += 1  # Increment the move count each time the player makes a move
-
-    # Check if the player has taken their second move and show the art studio introduction
-    if move_count == 2 and not visited_art_studio:
-        visited_art_studio = True  # Set the flag to True after the art studio introduction is shown
-        print_art_studio_intro()
-        return
-
-    # Store the new row and column based on the user's choice
+    # Check if the player's new position is a previously visited position
     new_row, new_col = current_row, current_column
     if choice == OPTIONS["Move up 1 square"]:
         new_row -= 1
@@ -134,10 +186,23 @@ def on_choice_button_click(choice):
     elif choice == OPTIONS["Move right 1 square"]:
         new_col += 1
 
+    new_position = (new_row, new_col)
+
     # Check if the new position is within the boundaries
     if is_within_boundaries(new_row, new_col):
-        current_row, current_column = new_row, new_col
-        stamina_points = handle_event_with_animation(stamina_points)
+        if new_position not in visited_positions:
+            visited_positions.add(new_position)  # Add the new position to the set of visited positions
+            move_count += 1  # Increment the move count each time the player makes a move
+
+        # Check if the player has taken their 3rd move and trigger the art studio intro
+        if move_count == 3 and not visited_art_studio:
+            visited_art_studio = True  # Set the flag to True after the art studio introduction is shown
+            print_art_studio_intro()
+        elif move_count == 5:  # Check if the player has taken their 5th move and trigger the science lab intro
+            print_science_lab_intro()
+        else:
+            current_row, current_column = new_row, new_col
+            stamina_points = handle_event_with_animation(stamina_points)
     else:
         # Show the message if the new position is outside the map boundaries
         message_label.config(text="You can't move that way now, please pick a different direction.")
@@ -145,6 +210,100 @@ def on_choice_button_click(choice):
         root.after(2000, lambda: message_label.config(text=""))
 
     update_gui()
+
+
+# Function to handle the science quiz
+def handle_science_quiz():
+    global stamina_points, message_label, button_frame, game_state, stamina_label
+
+    quiz_window = tk.Toplevel(root)
+    quiz_window.title("Science Quiz")
+
+    # Function to check the quiz answers
+    def check_science_answers():
+        global quiz_attempts, stamina_points, message_label, stamina_label
+
+        # Get the selected answer for each question
+        selected_answers = [var.get() for var in science_answer_vars]
+
+        # Check if all answers are correct
+        if all(selected_answer == question["correct_answer"] for selected_answer, question in zip(selected_answers, SCIENCE_QUIZ_QUESTIONS)):
+            # Player answered all questions correctly
+            stamina_points = handle_event_with_animation(stamina_points, False)  # Update stamina (no animation after the quiz)
+            stamina_label.config(text="Stamina: {}".format(stamina_points))  # Update the stamina label
+            quiz_window.destroy()  # Close the quiz window
+
+            # Display the "Wow, you really know your stuff!" message above the board one sentence at a time
+            print_after_science_quiz_text()
+        else:
+            # Player got a question wrong, deduct 20 stamina points and ask to retry
+            stamina_points -= 20
+            stamina_label.config(text="Stamina: {}".format(stamina_points))  # Update the stamina label
+            message_label.config(text="Oh no you got a question wrong! You lost 20 stamina. Let's restart")
+            root.update_idletasks()
+            root.after(2000, lambda: message_label.config(text=""))
+            # Clear the selected answers
+            for var in science_answer_vars:
+                var.set(None)
+
+    # Create answer variables for each science quiz question
+    science_answer_vars = [tk.StringVar() for _ in SCIENCE_QUIZ_QUESTIONS]
+
+    # Create science quiz questions and answer options
+    for index, question in enumerate(SCIENCE_QUIZ_QUESTIONS):
+        science_question_frame = tk.Frame(quiz_window)
+        science_question_frame.pack(pady=10)
+
+        tk.Label(science_question_frame, text=question["question"]).pack()
+
+        # Create answer options
+        for option in question["options"]:
+            tk.Radiobutton(science_question_frame, text=option, variable=science_answer_vars[index], value=option).pack(anchor="w")
+
+    # Create a button to check answers
+    check_science_button = tk.Button(quiz_window, text="Check Answers", command=check_science_answers)
+    check_science_button.pack(pady=10)
+
+    # Update the game state to "science_quiz" while the science quiz is displayed
+    game_state = "science_quiz"
+
+def print_after_science_quiz_text(index=0):
+    if index < len(AFTER_SCIENCE_QUIZ_TEXT):
+        intro_label.config(text=AFTER_SCIENCE_QUIZ_TEXT[index] + "\n\nPress Enter to continue")
+        root.bind("<Return>", lambda event, i=index: print_after_science_quiz_text(i + 1))
+    else:
+        intro_label.config(text="")
+        root.unbind("<Return>")  # Unbind the Enter key after the text is displayed
+
+        update_gui()
+
+
+# Function to print the science lab introduction one sentence at a time with prompt for user input
+def print_science_lab_intro(index=0):
+    global game_state, button_frame
+    if index < len(SCIENCE_LAB_INTRO):
+        intro_label.config(text=SCIENCE_LAB_INTRO[index] + "\n\nPress Enter to continue")
+        root.bind("<Return>", lambda event, i=index: print_science_lab_intro(i + 1))
+
+        # Update the game state to "science_lab_intro" while the science lab intro is displayed
+        game_state = "science_lab_intro"
+
+        # Disable the movement buttons during the science lab intro
+        for widget in button_frame.winfo_children():
+            widget["state"] = "disabled"
+
+    else:
+        intro_label.config(text="")
+        root.unbind("<Return>")  # Unbind the Enter key after the introduction is over
+
+        # Directly handle the science quiz once the science lab intro is over
+        handle_science_quiz()
+
+        # Re-enable the movement buttons after the science lab intro is over
+        for widget in button_frame.winfo_children():
+            widget["state"] = "normal"
+
+        update_gui()
 
 
 
@@ -161,8 +320,12 @@ def load_warning_image():
     return ImageTk.PhotoImage(warning_img)
 
 # Function to handle finding items or encountering traps with animation
-def handle_event_with_animation(stamina_points):
+def handle_event_with_animation(stamina_points, show_animation=True):
     global animation_label, message_label, sandwich_photo, warning_photo  # Access the global variables
+
+    # If show_animation is False, then no animation will be shown
+    if not show_animation:
+        return stamina_points
     if random.random() <= 0.25:
         event = random.choice(["item", "trap"])
         if event == "item":
@@ -254,17 +417,18 @@ def print_art_studio_intro(index=0):
             widget["state"] = "normal"
 
         update_gui()
+
     
 # Function to handle the quiz
 def handle_quiz():
-    global stamina_points, message_label, button_frame, game_state
+    global stamina_points, message_label, button_frame, game_state, stamina_label
 
     quiz_window = tk.Toplevel(root)
     quiz_window.title("Art Quiz")
 
     # Function to check the quiz answers
     def check_answers():
-        global quiz_attempts, stamina_points, message_label
+        global quiz_attempts, stamina_points, message_label, stamina_label
 
         # Get the selected answer for each question
         selected_answers = [var.get() for var in answer_vars]
@@ -272,19 +436,23 @@ def handle_quiz():
         # Check if all answers are correct
         if all(selected_answer == question["correct_answer"] for selected_answer, question in zip(selected_answers, QUIZ_QUESTIONS)):
             # Player answered all questions correctly
-            stamina_points = handle_event_with_animation(stamina_points)  # Show the animation and update stamina
+            stamina_points = handle_event_with_animation(stamina_points, False)  # Update stamina (no animation after the quiz)
+            stamina_label.config(text="Stamina: {}".format(stamina_points))  # Update the stamina label
             quiz_window.destroy()  # Close the quiz window
-            # Display the "Impressive!" message above the board
-            intro_label.config(text="Impressive! I didn't think a new student would know this much about art. Well, okay, here is Irene's last painting before she went missing. I hope it helps you to find her.")
+
+            # Display the "Impressive!" message above the board one sentence at a time
+            print_after_quiz_text()
         else:
             # Player got a question wrong, deduct 20 stamina points and ask to retry
-            message_label.config(text="Oh no you got a question wrong! Let's restart")
             stamina_points -= 20
+            stamina_label.config(text="Stamina: {}".format(stamina_points))  # Update the stamina label
+            message_label.config(text="Oh no you got a question wrong! You lost 20 stamina. Let's restart")
             root.update_idletasks()
             root.after(2000, lambda: message_label.config(text=""))
             # Clear the selected answers
             for var in answer_vars:
                 var.set(None)
+
 
     # Create answer variables for each question
     answer_vars = [tk.StringVar() for _ in QUIZ_QUESTIONS]
@@ -307,7 +475,15 @@ def handle_quiz():
     # Update the game state to "quiz" while the quiz is displayed
     game_state = "quiz"
 
+def print_after_quiz_text(index=0):
+    if index < len(AFTER_QUIZ_TEXT):
+        intro_label.config(text=AFTER_QUIZ_TEXT[index] + "\n\nPress Enter to continue")
+        root.bind("<Return>", lambda event, i=index: print_after_quiz_text(i + 1))
+    else:
+        intro_label.config(text="")
+        root.unbind("<Return>")  # Unbind the Enter key after the text is displayed
 
+        update_gui()
 
 # Create the main window
 root = tk.Tk()
@@ -323,8 +499,6 @@ map_label.pack()
 stamina_label = tk.Label(root, text="Stamina: {}".format(stamina_points))
 stamina_label.pack()
 
-# Start printing the introduction
-print_intro()
-
 # Start the GUI event loop
+handle_game_state()
 root.mainloop()

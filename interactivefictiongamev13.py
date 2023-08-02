@@ -38,6 +38,13 @@ OPTIONS = {
     "Move right 1 square": "D",
 }
 
+# Additional text after the quiz is completed
+AFTER_QUIZ_TEXT = [
+    "\"Impressive! I didn't think a new student would know this much about art. Well, okay, here is Irene's last painting before she went missing.\" Ms. Kay hands over a large canvas.",
+    "You place it down on a nearby desk. The painting seems to be an abstract perception of...beakers and tubes?",
+    "You notice written in the corner, is very small but neat writing. You look closer at it to see that it says \"my favourite place here...\".",
+    "You think that this can only mean one place. The science lab. You decide to head there next."
+]
 
 # List of quiz questions and their possible answers
 QUIZ_QUESTIONS = [
@@ -57,6 +64,7 @@ QUIZ_QUESTIONS = [
         "correct_answer": "Michelangelo"
     }
 ]
+
 
 
 # Current position
@@ -111,18 +119,6 @@ def on_choice_button_click(choice):
     def is_within_boundaries(row, col):
         return 0 <= row < 5 and 0 <= col < 5
 
-    # Check if the buttons should be active based on the game state
-    if game_state != "gameplay":
-        return
-
-    move_count += 1  # Increment the move count each time the player makes a move
-
-    # Check if the player has taken their second move and show the art studio introduction
-    if move_count == 2 and not visited_art_studio:
-        visited_art_studio = True  # Set the flag to True after the art studio introduction is shown
-        print_art_studio_intro()
-        return
-
     # Store the new row and column based on the user's choice
     new_row, new_col = current_row, current_column
     if choice == OPTIONS["Move up 1 square"]:
@@ -136,8 +132,15 @@ def on_choice_button_click(choice):
 
     # Check if the new position is within the boundaries
     if is_within_boundaries(new_row, new_col):
-        current_row, current_column = new_row, new_col
-        stamina_points = handle_event_with_animation(stamina_points)
+        # Before updating the current position, check if the 3rd move has been reached
+        if move_count == 2 and not visited_art_studio:
+            visited_art_studio = True  # Set the flag to True after the art studio introduction is shown
+            print_art_studio_intro()
+            return
+        else:
+            current_row, current_column = new_row, new_col
+            move_count += 1  # Increment the move count each time the player makes a move
+            stamina_points = handle_event_with_animation(stamina_points)
     else:
         # Show the message if the new position is outside the map boundaries
         message_label.config(text="You can't move that way now, please pick a different direction.")
@@ -161,8 +164,12 @@ def load_warning_image():
     return ImageTk.PhotoImage(warning_img)
 
 # Function to handle finding items or encountering traps with animation
-def handle_event_with_animation(stamina_points):
+def handle_event_with_animation(stamina_points, show_animation=True):
     global animation_label, message_label, sandwich_photo, warning_photo  # Access the global variables
+
+    # If show_animation is False, then no animation will be shown
+    if not show_animation:
+        return stamina_points
     if random.random() <= 0.25:
         event = random.choice(["item", "trap"])
         if event == "item":
@@ -254,17 +261,18 @@ def print_art_studio_intro(index=0):
             widget["state"] = "normal"
 
         update_gui()
+
     
 # Function to handle the quiz
 def handle_quiz():
-    global stamina_points, message_label, button_frame, game_state
+    global stamina_points, message_label, button_frame, game_state, stamina_label
 
     quiz_window = tk.Toplevel(root)
     quiz_window.title("Art Quiz")
 
     # Function to check the quiz answers
     def check_answers():
-        global quiz_attempts, stamina_points, message_label
+        global quiz_attempts, stamina_points, message_label, stamina_label
 
         # Get the selected answer for each question
         selected_answers = [var.get() for var in answer_vars]
@@ -272,19 +280,23 @@ def handle_quiz():
         # Check if all answers are correct
         if all(selected_answer == question["correct_answer"] for selected_answer, question in zip(selected_answers, QUIZ_QUESTIONS)):
             # Player answered all questions correctly
-            stamina_points = handle_event_with_animation(stamina_points)  # Show the animation and update stamina
+            stamina_points = handle_event_with_animation(stamina_points, False)  # Update stamina (no animation after the quiz)
+            stamina_label.config(text="Stamina: {}".format(stamina_points))  # Update the stamina label
             quiz_window.destroy()  # Close the quiz window
-            # Display the "Impressive!" message above the board
-            intro_label.config(text="Impressive! I didn't think a new student would know this much about art. Well, okay, here is Irene's last painting before she went missing. I hope it helps you to find her.")
+
+            # Display the "Impressive!" message above the board one sentence at a time
+            print_after_quiz_text()
         else:
             # Player got a question wrong, deduct 20 stamina points and ask to retry
-            message_label.config(text="Oh no you got a question wrong! Let's restart")
             stamina_points -= 20
+            stamina_label.config(text="Stamina: {}".format(stamina_points))  # Update the stamina label
+            message_label.config(text="Oh no you got a question wrong! You lost 20 stamina. Let's restart")
             root.update_idletasks()
             root.after(2000, lambda: message_label.config(text=""))
             # Clear the selected answers
             for var in answer_vars:
                 var.set(None)
+
 
     # Create answer variables for each question
     answer_vars = [tk.StringVar() for _ in QUIZ_QUESTIONS]
@@ -307,7 +319,15 @@ def handle_quiz():
     # Update the game state to "quiz" while the quiz is displayed
     game_state = "quiz"
 
+def print_after_quiz_text(index=0):
+    if index < len(AFTER_QUIZ_TEXT):
+        intro_label.config(text=AFTER_QUIZ_TEXT[index] + "\n\nPress Enter to continue")
+        root.bind("<Return>", lambda event, i=index: print_after_quiz_text(i + 1))
+    else:
+        intro_label.config(text="")
+        root.unbind("<Return>")  # Unbind the Enter key after the text is displayed
 
+        update_gui()
 
 # Create the main window
 root = tk.Tk()
