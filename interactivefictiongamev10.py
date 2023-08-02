@@ -39,6 +39,25 @@ OPTIONS = {
 }
 
 
+# List of quiz questions and their possible answers
+QUIZ_QUESTIONS = [
+    {
+        "question": "Van Gogh famously cut off what part of his body?",
+        "options": ["Ear", "Nose", "Finger", "Toe"],
+        "correct_answer": "Ear"
+    },
+    {
+        "question": "What type of paint dries the slowest?",
+        "options": ["Acrylic", "Oil", "Watercolor", "Gouache"],
+        "correct_answer": "Oil"
+    },
+    {
+        "question": "Who painted the ceiling of the Sistine Chapel?",
+        "options": ["Leonardo da Vinci", "Michelangelo", "Raphael", "Donatello"],
+        "correct_answer": "Michelangelo"
+    }
+]
+
 
 # Current position
 current_row = 2  # starting row
@@ -49,6 +68,9 @@ stamina_points = 100
 
 # Global variable to track the player's move count
 move_count = 0
+
+# Variable to keep track of quiz attempts
+quiz_attempts = 0
 
 # Declare animation_label, message_label, sandwich_photo, and warning_photo as global variables
 animation_label = None
@@ -157,6 +179,7 @@ def handle_event_with_animation(stamina_points):
             root.after(1500, lambda: message_label.config(text=""))
     return stamina_points
 
+
 # Function to print the introduction one sentence at a time with prompt for user input
 def print_intro(index=0):
     global animation_label, sandwich_photo, warning_photo  # Access the global variables
@@ -199,12 +222,60 @@ def print_art_studio_intro(index=0):
         intro_label.config(text="")
         root.unbind("<Return>")  # Unbind the Enter key after the introduction is over
 
-        # Continue with the game controls and map update
-        button_frame.pack()  # Bring back the first set of movement controls
-        for option, choice in OPTIONS.items():
-            button = tk.Button(button_frame, text=option, command=lambda choice=choice: on_choice_button_click(choice))
-            button.pack()
+        # Directly handle the quiz once the art studio intro is over
+        handle_quiz()
+
         update_gui()
+    
+# Function to handle the quiz
+def handle_quiz():
+    global stamina_points, message_label, button_frame
+
+    quiz_window = tk.Toplevel(root)
+    quiz_window.title("Art Quiz")
+
+    # Function to check the quiz answers
+    def check_answers():
+        global quiz_attempts, stamina_points, message_label
+
+        # Get the selected answer for each question
+        selected_answers = [var.get() for var in answer_vars]
+
+        # Check if all answers are correct
+        if all(selected_answer == question["correct_answer"] for selected_answer, question in zip(selected_answers, QUIZ_QUESTIONS)):
+            # Player answered all questions correctly
+            stamina_points = handle_event_with_animation(stamina_points)  # Show the animation and update stamina
+            quiz_window.destroy()  # Close the quiz window
+            # Display the "Impressive!" message above the board
+            intro_label.config(text="Impressive! I didn't think a new student would know this much about art. Well, okay, here is Irene's last painting before she went missing. I hope it helps you to find her.")
+        else:
+            # Player got a question wrong, deduct 20 stamina points and ask to retry
+            message_label.config(text="Oh no you got a question wrong! Let's restart")
+            stamina_points -= 20
+            root.update_idletasks()
+            root.after(2000, lambda: message_label.config(text=""))
+            # Clear the selected answers
+            for var in answer_vars:
+                var.set(None)
+
+    # Create answer variables for each question
+    answer_vars = [tk.StringVar() for _ in QUIZ_QUESTIONS]
+
+    # Create quiz questions and answer options
+    for index, question in enumerate(QUIZ_QUESTIONS):
+        question_frame = tk.Frame(quiz_window)
+        question_frame.pack(pady=10)
+
+        tk.Label(question_frame, text=question["question"]).pack()
+
+        # Create answer options
+        for option in question["options"]:
+            tk.Radiobutton(question_frame, text=option, variable=answer_vars[index], value=option).pack(anchor="w")
+
+    # Create a button to check answers
+    check_button = tk.Button(quiz_window, text="Check Answers", command=check_answers)
+    check_button.pack(pady=10)
+
 
 
 # Create the main window
