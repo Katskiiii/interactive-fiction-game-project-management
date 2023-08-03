@@ -28,10 +28,13 @@ SCIENCE_LAB_INTRO = [
 
 # Additional text after the science quiz is completed
 AFTER_SCIENCE_QUIZ_TEXT = [
-    "\"Wow, you really know your stuff! I'm impressed! As promised, here's the secret I'll share with you...\"",
-    "Mr. Green opens a drawer and pulls out a small diary, handing it to you. \"This is Irene's personal diary. She often wrote her thoughts and feelings in here. Maybe it will provide some insight into her disappearance.\"",
-    "You thank Mr. Green for his help, and with the diary in your hand, you feel more determined to find Irene and unravel the mystery.",
-    "You leave the science lab and continue your search for Irene, following the clues left behind..."
+    "\"Wow, you really know your stuff! As promised, here's the secret I'll share with you...\"",
+    "Mr. Green opens a drawer and pulls out a small diary, handing it to you. \"This is Irene's personal diary that she left behind with her disappearance. She often wrote her thoughts and feelings in here. Maybe it will provide some insight into her disappearance.\"",
+    "You thank Mr. Green for his help, and open up the diary to read it.",
+    "You find many long, boring recounts of Irene's day over the past week. However, on the last page you find what seems to be a very complex math equation.",
+    "The page is titled 'abondoned hallway room'.",
+    "A code to a secret room...You think to yourself.",
+    "Unable to figure out the answer to the equation on your own, you decide to go to the math classroom to seek help with solving it"
 ]
 
 # Additional text for the art studio and Ms. Kay's introduction
@@ -83,19 +86,19 @@ QUIZ_QUESTIONS = [
 # List of science quiz questions and their possible answers
 SCIENCE_QUIZ_QUESTIONS = [
     {
-        "question": "What is the chemical symbol for water?",
-        "options": ["H2O", "CO2", "NaCl", "O2"],
-        "correct_answer": "H2O"
+        "question": "Where are the smallest bones in our body located?",
+        "options": ["Hands", "Feet", "Spine", "Ear"],
+        "correct_answer": "Ear"
     },
     {
-        "question": "Which gas do plants absorb from the atmosphere?",
-        "options": ["Oxygen", "Carbon dioxide", "Nitrogen", "Hydrogen"],
-        "correct_answer": "Carbon dioxide"
+        "question": "What organelle does photosynthesis occur in?",
+        "options": ["Chloroplast", "Nucleus", "Mitochondria", "Golgi body"],
+        "correct_answer": "Chloroplast"
     },
     {
-        "question": "What is the largest organ of the human body?",
-        "options": ["Liver", "Heart", "Skin", "Brain"],
-        "correct_answer": "Skin"
+        "question": "What is the most abundant gas in our atmosphere?",
+        "options": ["Oxygen", "Carbon dioxide", "Nitrogen", "Argon"],
+        "correct_answer": "Nitrogen"
     }
 ]
 

@@ -2,7 +2,39 @@ import random
 import tkinter as tk
 from PIL import Image, ImageTk
 
+# Additional text for the math classroom and Mr. Smith's introduction
+MATH_CLASSROOM_INTRO = [
+    "After finding the math classroom, you walk straight in. What must be the math teacher stands in front of a blackboard with chalk in his hand and a deep, thoughtful expression on his face as he looks at the math equations on the board.",
+    "You clear your voice to get his attention, feeling bad that you’re interrupting his work. \"Oh! I’m sorry, I didn’t even notice someone came in. You must be the new student the principal told me about. I’m Mr. Smith.\"",
+    "You shake his hand and introduce yourself. Once again you explain to him everything to do with Irene’s disappearance. You show him the equation written in Irene’s diary.",
+    "\"Hmm...well, this is quite a complicated problem, but I think I can solve it. The principal said that I should help you catch up with the rest of the class when school starts again, so let me test you on some math, and I’ll solve that problem for you.\"",
+    "Mr. Smith takes out a piece of paper and writes down some questions for you."
+]
 
+# Additional text after the math quiz is completed
+AFTER_MATH_QUIZ_TEXT = [
+    "\"Wow! Looks like I don’t have much stuff to catch you up on. Alright, give me a second to let me solve Irene’s equation.\"",
+    "After a few minutes, Mr. Smith hands you back a slip of paper with the answer written on it. '2735' it says.",
+    "You thank him and immediately start looking for the abandoned hallway. It feels like you’re so close to finding Irene...",
+]
+
+MATH_QUIZ_QUESTIONS = [
+    {
+        "question": "What is the formula for the circumference of a circle?",
+        "options": ["1/2bh", "a^2 + b^2 = c^2", "2πr", "d/r"],
+        "correct_answer": "2πr"
+    },
+    {
+        "question": "What is 1/3 x 1/2?",
+        "options": ["2/6", "2/3", "3/8", "1/6"],
+        "correct_answer": "1/6"
+    },
+    {
+        "question": "What is the hypotenuse?",
+        "options": ["Side opposite right angle in a right triangle", "Biggest angle in a triangle ", "Shortest side of any triangle", "Side adjacent a right angle in a triangle"],
+        "correct_answer": "Side opposite right angle in a right triangle"
+    }
+]
 
 # Introduction of game
 INTRO = [
@@ -28,10 +60,13 @@ SCIENCE_LAB_INTRO = [
 
 # Additional text after the science quiz is completed
 AFTER_SCIENCE_QUIZ_TEXT = [
-    "\"Wow, you really know your stuff! I'm impressed! As promised, here's the secret I'll share with you...\"",
-    "Mr. Green opens a drawer and pulls out a small diary, handing it to you. \"This is Irene's personal diary. She often wrote her thoughts and feelings in here. Maybe it will provide some insight into her disappearance.\"",
-    "You thank Mr. Green for his help, and with the diary in your hand, you feel more determined to find Irene and unravel the mystery.",
-    "You leave the science lab and continue your search for Irene, following the clues left behind..."
+    "\"Wow, you really know your stuff! As promised, here's the secret I'll share with you...\"",
+    "Mr. Green opens a drawer and pulls out a small diary, handing it to you. \"This is Irene's personal diary that she left behind with her disappearance. She often wrote her thoughts and feelings in here. Maybe it will provide some insight into her disappearance.\"",
+    "You thank Mr. Green for his help, and open up the diary to read it.",
+    "You find many long, boring recounts of Irene's day over the past week. However, on the last page you find what seems to be a very complex math equation.",
+    "The page is titled 'abondoned hallway room'.",
+    "A code to a secret room...You think to yourself.",
+    "Unable to figure out the answer to the equation on your own, you decide to go to the math classroom to seek help with solving it"
 ]
 
 # Additional text for the art studio and Ms. Kay's introduction
@@ -83,19 +118,19 @@ QUIZ_QUESTIONS = [
 # List of science quiz questions and their possible answers
 SCIENCE_QUIZ_QUESTIONS = [
     {
-        "question": "What is the chemical symbol for water?",
-        "options": ["H2O", "CO2", "NaCl", "O2"],
-        "correct_answer": "H2O"
+        "question": "Where are the smallest bones in our body located?",
+        "options": ["Hands", "Feet", "Spine", "Ear"],
+        "correct_answer": "Ear"
     },
     {
-        "question": "Which gas do plants absorb from the atmosphere?",
-        "options": ["Oxygen", "Carbon dioxide", "Nitrogen", "Hydrogen"],
-        "correct_answer": "Carbon dioxide"
+        "question": "What organelle does photosynthesis occur in?",
+        "options": ["Chloroplast", "Nucleus", "Mitochondria", "Golgi body"],
+        "correct_answer": "Chloroplast"
     },
     {
-        "question": "What is the largest organ of the human body?",
-        "options": ["Liver", "Heart", "Skin", "Brain"],
-        "correct_answer": "Skin"
+        "question": "What is the most abundant gas in our atmosphere?",
+        "options": ["Oxygen", "Carbon dioxide", "Nitrogen", "Argon"],
+        "correct_answer": "Nitrogen"
     }
 ]
 
@@ -115,6 +150,9 @@ move_count = 0
 # Variable to keep track of quiz attempts
 quiz_attempts = 0
 
+# Global variable to track if the science lab intro has been shown
+science_lab_intro_shown = False
+
 # Declare animation_label, message_label, sandwich_photo, and warning_photo as global variables
 animation_label = None
 message_label = None
@@ -123,6 +161,10 @@ warning_photo = None
 
 # Global variable to track if the player has visited the art studio
 visited_art_studio = False
+
+# Global variable to track if the science lab intro has been shown
+science_lab_intro_shown = False
+
 
 # Global variable to track the game state
 game_state = "intro"  # Possible values: "intro", "art_studio_intro", "quiz", "gameplay"
@@ -148,7 +190,7 @@ def update_gui():
 
 # Function to handle user input from the GUI
 def on_choice_button_click(choice):
-    global current_row, current_column, stamina_points, visited_art_studio, move_count, visited_positions
+    global current_row, current_column, stamina_points, visited_art_studio, move_count, visited_positions, science_lab_intro_shown
 
     # Function to check if the new position is within the boundaries of the map
     def is_within_boundaries(row, col):
@@ -182,8 +224,13 @@ def on_choice_button_click(choice):
         if move_count == 3 and not visited_art_studio:
             visited_art_studio = True  # Set the flag to True after the art studio introduction is shown
             print_art_studio_intro()
-        elif move_count == 5:  # Check if the player has taken their 5th move and trigger the science lab intro
-            print_science_lab_intro()
+        if move_count == 5 and not visited_art_studio and not science_lab_intro_shown:
+            visited_art_studio = True  # Set the flag to True after the art studio introduction is shown
+            print_art_studio_intro()
+        elif move_count == 6 and not science_lab_intro_shown:
+            print_science_lab_intro()  # Show the science lab intro directly on the 6th move
+        elif move_count == 8 and not math_classroom_intro_shown:
+            print_math_classroom_intro()  # Show the math classroom intro directly on the 8th move
         else:
             current_row, current_column = new_row, new_col
             stamina_points = handle_event_with_animation(stamina_points)
@@ -194,6 +241,94 @@ def on_choice_button_click(choice):
         root.after(2000, lambda: message_label.config(text=""))
 
     update_gui()
+
+def print_math_classroom_intro(index=0):
+    global math_classroom_intro_shown  # Access the global variable
+
+    if index < len(MATH_CLASSROOM_INTRO):
+        intro_label.config(text=MATH_CLASSROOM_INTRO[index] + "\n\nPress Enter to continue")
+        root.bind("<Return>", lambda event, i=index: print_math_classroom_intro(i + 1))
+    else:
+        intro_label.config(text="")
+        root.unbind("<Return>")  # Unbind the Enter key after the text is displayed
+
+        # Directly handle the math quiz once the math classroom intro is over
+        handle_math_quiz()
+
+        # Update the flag to indicate that the math classroom intro has been shown
+        math_classroom_intro_shown = True
+
+        update_gui()
+    
+math_classroom_intro_shown = False
+
+# Function to handle the math quiz
+def handle_math_quiz():
+    global stamina_points, message_label, button_frame, game_state, stamina_label
+
+    quiz_window = tk.Toplevel(root)
+    quiz_window.title("Math Quiz")
+
+    # Function to check the quiz answers
+    def check_math_answers():
+        global quiz_attempts, stamina_points, message_label, stamina_label
+
+        # Get the selected answer for each question
+        selected_answers = [var.get() for var in math_answer_vars]
+
+        # Check if all answers are correct
+        if all(selected_answer == question["correct_answer"] for selected_answer, question in zip(selected_answers, MATH_QUIZ_QUESTIONS)):
+            # Player answered all questions correctly
+            stamina_points = handle_event_with_animation(stamina_points, False)  # Update stamina (no animation after the quiz)
+            stamina_label.config(text="Stamina: {}".format(stamina_points))  # Update the stamina label
+            quiz_window.destroy()  # Close the quiz window
+
+            # Display the "Wow! Looks like I don’t have much stuff to catch you up on." message above the board one sentence at a time
+            print_after_math_quiz_text()
+        else:
+            # Player got a question wrong, deduct 20 stamina points and ask to retry
+            stamina_points -= 20
+            stamina_label.config(text="Stamina: {}".format(stamina_points))  # Update the stamina label
+            message_label.config(text="Oh no you got a question wrong! You lost 20 stamina. Let's restart")
+            root.update_idletasks()
+            root.after(2000, lambda: message_label.config(text=""))
+            # Clear the selected answers
+            for var in math_answer_vars:
+                var.set(None)
+
+
+    # Create answer variables for each math quiz question
+    math_answer_vars = [tk.StringVar() for _ in MATH_QUIZ_QUESTIONS]
+
+    # Create math quiz questions and answer options
+    for index, question in enumerate(MATH_QUIZ_QUESTIONS):
+        math_question_frame = tk.Frame(quiz_window)
+        math_question_frame.pack(pady=10)
+
+        tk.Label(math_question_frame, text=question["question"]).pack()
+
+        # Create answer options
+        for option in question["options"]:
+            tk.Radiobutton(math_question_frame, text=option, variable=math_answer_vars[index], value=option).pack(anchor="w")
+
+    # Create a button to check answers
+    check_math_button = tk.Button(quiz_window, text="Check Answers", command=check_math_answers)
+    check_math_button.pack(pady=10)
+
+    # Update the game state to "math_quiz" while the math quiz is displayed
+    game_state = "math_quiz"
+
+
+def print_after_math_quiz_text(index=0):
+    if index < len(AFTER_MATH_QUIZ_TEXT):
+        intro_label.config(text=AFTER_MATH_QUIZ_TEXT[index] + "\n\nPress Enter to continue")
+        root.bind("<Return>", lambda event, i=index: print_after_math_quiz_text(i + 1))
+    else:
+        intro_label.config(text="")
+        root.unbind("<Return>")  # Unbind the Enter key after the text is displayed
+
+        update_gui()
+
 
 
 # Function to handle the science quiz
@@ -264,6 +399,8 @@ def print_after_science_quiz_text(index=0):
 
 # Function to print the science lab introduction one sentence at a time with prompt for user input
 def print_science_lab_intro(index=0):
+    global science_lab_intro_shown  # Access the global variable
+
     if index < len(SCIENCE_LAB_INTRO):
         intro_label.config(text=SCIENCE_LAB_INTRO[index] + "\n\nPress Enter to continue")
         root.bind("<Return>", lambda event, i=index: print_science_lab_intro(i + 1))
@@ -274,7 +411,11 @@ def print_science_lab_intro(index=0):
         # Directly handle the science quiz once the science lab intro is over
         handle_science_quiz()
 
+        # Update the flag to indicate that the science lab intro has been shown
+        science_lab_intro_shown = True
+
         update_gui()
+
 
 
 

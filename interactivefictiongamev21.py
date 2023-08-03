@@ -2,7 +2,39 @@ import random
 import tkinter as tk
 from PIL import Image, ImageTk
 
+# Additional text for the math classroom and Mr. Smith's introduction
+MATH_CLASSROOM_INTRO = [
+    "After finding the math classroom, you walk straight in. What must be the math teacher stands in front of a blackboard with chalk in his hand and a deep, thoughtful expression on his face as he looks at the math equations on the board.",
+    "You clear your voice to get his attention, feeling bad that you’re interrupting his work. \"Oh! I’m sorry, I didn’t even notice someone came in. You must be the new student the principal told me about. I’m Mr. Smith.\"",
+    "You shake his hand and introduce yourself. Once again you explain to him everything to do with Irene’s disappearance. You show him the equation written in Irene’s diary.",
+    "\"Hmm...well, this is quite a complicated problem, but I think I can solve it. The principal said that I should help you catch up with the rest of the class when school starts again, so let me test you on some math, and I’ll solve that problem for you.\"",
+    "Mr. Smith takes out a piece of paper and writes down some questions for you."
+]
 
+# Additional text after the math quiz is completed
+AFTER_MATH_QUIZ_TEXT = [
+    "\"Wow! Looks like I don’t have much stuff to catch you up on. Alright, give me a second to let me solve Irene’s equation.\"",
+    "After a few minutes, Mr. Smith hands you back a slip of paper with the answer written on it. '2735' it says.",
+    "You thank him and immediately start looking for the abandoned hallway. It feels like you’re so close to finding Irene...",
+]
+
+MATH_QUIZ_QUESTIONS = [
+    {
+        "question": "What is the formula for the circumference of a circle?",
+        "options": ["1/2bh", "a^2 + b^2 = c^2", "2πr", "d/r"],
+        "correct_answer": "2πr"
+    },
+    {
+        "question": "What is 1/3 x 1/2?",
+        "options": ["2/6", "2/3", "3/8", "1/6"],
+        "correct_answer": "1/6"
+    },
+    {
+        "question": "What is the hypotenuse?",
+        "options": ["Side opposite right angle in a right triangle", "Biggest angle in a triangle ", "Shortest side of any triangle", "Side adjacent a right angle in a triangle"],
+        "correct_answer": "Side opposite right angle in a right triangle"
+    }
+]
 
 # Introduction of game
 INTRO = [
@@ -28,10 +60,13 @@ SCIENCE_LAB_INTRO = [
 
 # Additional text after the science quiz is completed
 AFTER_SCIENCE_QUIZ_TEXT = [
-    "\"Wow, you really know your stuff! I'm impressed! As promised, here's the secret I'll share with you...\"",
-    "Mr. Green opens a drawer and pulls out a small diary, handing it to you. \"This is Irene's personal diary. She often wrote her thoughts and feelings in here. Maybe it will provide some insight into her disappearance.\"",
-    "You thank Mr. Green for his help, and with the diary in your hand, you feel more determined to find Irene and unravel the mystery.",
-    "You leave the science lab and continue your search for Irene, following the clues left behind..."
+    "\"Wow, you really know your stuff! As promised, here's the secret I'll share with you...\"",
+    "Mr. Green opens a drawer and pulls out a small diary, handing it to you. \"This is Irene's personal diary that she left behind with her disappearance. She often wrote her thoughts and feelings in here. Maybe it will provide some insight into her disappearance.\"",
+    "You thank Mr. Green for his help, and open up the diary to read it.",
+    "You find many long, boring recounts of Irene's day over the past week. However, on the last page you find what seems to be a very complex math equation.",
+    "The page is titled 'abondoned hallway room'.",
+    "A code to a secret room...You think to yourself.",
+    "Unable to figure out the answer to the equation on your own, you decide to go to the math classroom to seek help with solving it"
 ]
 
 # Additional text for the art studio and Ms. Kay's introduction
@@ -83,21 +118,70 @@ QUIZ_QUESTIONS = [
 # List of science quiz questions and their possible answers
 SCIENCE_QUIZ_QUESTIONS = [
     {
-        "question": "What is the chemical symbol for water?",
-        "options": ["H2O", "CO2", "NaCl", "O2"],
-        "correct_answer": "H2O"
+        "question": "Where are the smallest bones in our body located?",
+        "options": ["Hands", "Feet", "Spine", "Ear"],
+        "correct_answer": "Ear"
     },
     {
-        "question": "Which gas do plants absorb from the atmosphere?",
-        "options": ["Oxygen", "Carbon dioxide", "Nitrogen", "Hydrogen"],
-        "correct_answer": "Carbon dioxide"
+        "question": "What organelle does photosynthesis occur in?",
+        "options": ["Chloroplast", "Nucleus", "Mitochondria", "Golgi body"],
+        "correct_answer": "Chloroplast"
     },
     {
-        "question": "What is the largest organ of the human body?",
-        "options": ["Liver", "Heart", "Skin", "Brain"],
-        "correct_answer": "Skin"
+        "question": "What is the most abundant gas in our atmosphere?",
+        "options": ["Oxygen", "Carbon dioxide", "Nitrogen", "Argon"],
+        "correct_answer": "Nitrogen"
     }
 ]
+
+# Additional text for the secret room
+SECRET_ROOM_INTRO = [
+    "Your investigation leads you to a hidden door in the abandoned hallway. The door is padlocked, and curiosity takes over as you wonder what could be inside.",
+    "You recall the code from Irene's equation - '2735'. Hesitant yet determined, you enter the code, and the padlock clicks open.",
+    "As the door creaks open, you find yourself facing a flight of stairs that lead down to a dark basement. The air is heavy with a sense of mystery, and your heart races as you cautiously descend into the unknown depths.",
+    "The faint sound of distant voices grows louder with each step, filling you with anticipation and apprehension.",
+    "As you reach the bottom of the stairs, you find yourself in a dimly lit chamber filled with shadows.",
+    "To your shock, you discover a secret society gathering led by the evil and mad history teacher, Mr. Scrooge. Amongst the crowd, you catch a glimpse of Irene.",
+    "\"Help me please! He’s insane!\" Irene pleads for your help.",
+    "Facing the sinister Mr. Scrooge, you demand to know why he took Irene.",
+    "With a wicked grin, he says \"I don’t know who you are, but neither you nor Irene will stop me from achieving my goals. You want to know what Irene did to get herself here? I’ll tell you. She was too curious for her own good, she should have never discovered us, and she certainly should not have tried to stop us.",
+    "You too will suffer the same fate as her...Unless! If you can complete my history quiz, one that no one has ever managed to conquer, then I will set you and Irene free.",
+    "Your mind races with thoughts. It is a life-or-death wager. If you succeed, you and Irene shall be set free, but if you fail, you'll share Irene's fate in the cell.",
+    "You tell him you’ll do it."
+]
+
+# Additional text after the secret room quiz is completed
+AFTER_SECRET_ROOM_QUIZ_TEXT = [
+    "The room falls silent as you complete the final question, leaving Mr. Scrooge no choice but to admit defeat.",
+    "Defeated, Mr. Scrooge allows you and Irene to go free. The secret society members are apprehended, and their sinister ambitions are thwarted.",
+    "Irene, freed from her confinement, embraces you with heartfelt gratitude, thanking you for being her savior.",
+    "With the secret society exposed and Mr. Scrooge brought to justice, the school can once again resume its normal operations.",
+    "You are hailed as a hero, celebrated for your bravery and ingenuity in saving Irene and the entire school from impending doom.",
+    "As the days go by, you and Irene become the talk of the school, and your friendship grows stronger with each passing moment.",
+    "The echoes of your courageous journey will forever resonate in the halls of Onslow, reminding everyone that even in the face of darkness, knowledge and bravery will always prevail."
+]
+
+# Secret room quiz questions
+SECRET_ROOM_QUIZ_QUESTIONS = [
+    {
+        "question": "How did Julius Caesar die",
+        "options": ["Stabbed", "Drowned", "Strangled", "Shot"],
+        "correct_answer": "Stabbed"
+    },
+    {
+        "question": "When did the first iphone come out?",
+        "options": ["2009", "2000", "1998", "2007"],
+        "correct_answer": "2007"
+    },
+    {
+        "question": "What is considered the largest empire in history?",
+        "options": ["Roman Empire", "British Empire", "Mongol Empire", "Ottoman Empire"],
+        "correct_answer": "British Empire"
+    }
+]
+
+# Global variable to track if the secret room intro has been shown
+secret_room_intro_shown = False
 
 # Declare a set to store the visited positions on the board
 visited_positions = set()
@@ -115,6 +199,9 @@ move_count = 0
 # Variable to keep track of quiz attempts
 quiz_attempts = 0
 
+# Global variable to track if the science lab intro has been shown
+science_lab_intro_shown = False
+
 # Declare animation_label, message_label, sandwich_photo, and warning_photo as global variables
 animation_label = None
 message_label = None
@@ -123,6 +210,10 @@ warning_photo = None
 
 # Global variable to track if the player has visited the art studio
 visited_art_studio = False
+
+# Global variable to track if the science lab intro has been shown
+science_lab_intro_shown = False
+
 
 # Global variable to track the game state
 game_state = "intro"  # Possible values: "intro", "art_studio_intro", "quiz", "gameplay"
@@ -148,7 +239,7 @@ def update_gui():
 
 # Function to handle user input from the GUI
 def on_choice_button_click(choice):
-    global current_row, current_column, stamina_points, visited_art_studio, move_count, visited_positions
+    global current_row, current_column, stamina_points, visited_art_studio, move_count, visited_positions, science_lab_intro_shown, secret_room_intro_shown
 
     # Function to check if the new position is within the boundaries of the map
     def is_within_boundaries(row, col):
@@ -182,8 +273,15 @@ def on_choice_button_click(choice):
         if move_count == 3 and not visited_art_studio:
             visited_art_studio = True  # Set the flag to True after the art studio introduction is shown
             print_art_studio_intro()
-        elif move_count == 5:  # Check if the player has taken their 5th move and trigger the science lab intro
-            print_science_lab_intro()
+        if move_count == 5 and not visited_art_studio and not science_lab_intro_shown:
+            visited_art_studio = True  # Set the flag to True after the art studio introduction is shown
+            print_art_studio_intro()
+        elif move_count == 6 and not science_lab_intro_shown:
+            print_science_lab_intro()  # Show the science lab intro directly on the 6th move
+        elif move_count == 8 and not math_classroom_intro_shown:
+            print_math_classroom_intro()  # Show the math classroom intro directly on the 8th move
+        elif move_count == 11 and not secret_room_intro_shown:
+            print_secret_room_intro()
         else:
             current_row, current_column = new_row, new_col
             stamina_points = handle_event_with_animation(stamina_points)
@@ -194,6 +292,94 @@ def on_choice_button_click(choice):
         root.after(2000, lambda: message_label.config(text=""))
 
     update_gui()
+
+def print_math_classroom_intro(index=0):
+    global math_classroom_intro_shown  # Access the global variable
+
+    if index < len(MATH_CLASSROOM_INTRO):
+        intro_label.config(text=MATH_CLASSROOM_INTRO[index] + "\n\nPress Enter to continue")
+        root.bind("<Return>", lambda event, i=index: print_math_classroom_intro(i + 1))
+    else:
+        intro_label.config(text="")
+        root.unbind("<Return>")  # Unbind the Enter key after the text is displayed
+
+        # Directly handle the math quiz once the math classroom intro is over
+        handle_math_quiz()
+
+        # Update the flag to indicate that the math classroom intro has been shown
+        math_classroom_intro_shown = True
+
+        update_gui()
+    
+math_classroom_intro_shown = False
+
+# Function to handle the math quiz
+def handle_math_quiz():
+    global stamina_points, message_label, button_frame, game_state, stamina_label
+
+    quiz_window = tk.Toplevel(root)
+    quiz_window.title("Math Quiz")
+
+    # Function to check the quiz answers
+    def check_math_answers():
+        global quiz_attempts, stamina_points, message_label, stamina_label
+
+        # Get the selected answer for each question
+        selected_answers = [var.get() for var in math_answer_vars]
+
+        # Check if all answers are correct
+        if all(selected_answer == question["correct_answer"] for selected_answer, question in zip(selected_answers, MATH_QUIZ_QUESTIONS)):
+            # Player answered all questions correctly
+            stamina_points = handle_event_with_animation(stamina_points, False)  # Update stamina (no animation after the quiz)
+            stamina_label.config(text="Stamina: {}".format(stamina_points))  # Update the stamina label
+            quiz_window.destroy()  # Close the quiz window
+
+            # Display the "Wow! Looks like I don’t have much stuff to catch you up on." message above the board one sentence at a time
+            print_after_math_quiz_text()
+        else:
+            # Player got a question wrong, deduct 20 stamina points and ask to retry
+            stamina_points -= 20
+            stamina_label.config(text="Stamina: {}".format(stamina_points))  # Update the stamina label
+            message_label.config(text="Oh no you got a question wrong! You lost 20 stamina. Let's restart")
+            root.update_idletasks()
+            root.after(2000, lambda: message_label.config(text=""))
+            # Clear the selected answers
+            for var in math_answer_vars:
+                var.set(None)
+
+
+    # Create answer variables for each math quiz question
+    math_answer_vars = [tk.StringVar() for _ in MATH_QUIZ_QUESTIONS]
+
+    # Create math quiz questions and answer options
+    for index, question in enumerate(MATH_QUIZ_QUESTIONS):
+        math_question_frame = tk.Frame(quiz_window)
+        math_question_frame.pack(pady=10)
+
+        tk.Label(math_question_frame, text=question["question"]).pack()
+
+        # Create answer options
+        for option in question["options"]:
+            tk.Radiobutton(math_question_frame, text=option, variable=math_answer_vars[index], value=option).pack(anchor="w")
+
+    # Create a button to check answers
+    check_math_button = tk.Button(quiz_window, text="Check Answers", command=check_math_answers)
+    check_math_button.pack(pady=10)
+
+    # Update the game state to "math_quiz" while the math quiz is displayed
+    game_state = "math_quiz"
+
+
+def print_after_math_quiz_text(index=0):
+    if index < len(AFTER_MATH_QUIZ_TEXT):
+        intro_label.config(text=AFTER_MATH_QUIZ_TEXT[index] + "\n\nPress Enter to continue")
+        root.bind("<Return>", lambda event, i=index: print_after_math_quiz_text(i + 1))
+    else:
+        intro_label.config(text="")
+        root.unbind("<Return>")  # Unbind the Enter key after the text is displayed
+
+        update_gui()
+
 
 
 # Function to handle the science quiz
@@ -264,6 +450,8 @@ def print_after_science_quiz_text(index=0):
 
 # Function to print the science lab introduction one sentence at a time with prompt for user input
 def print_science_lab_intro(index=0):
+    global science_lab_intro_shown  # Access the global variable
+
     if index < len(SCIENCE_LAB_INTRO):
         intro_label.config(text=SCIENCE_LAB_INTRO[index] + "\n\nPress Enter to continue")
         root.bind("<Return>", lambda event, i=index: print_science_lab_intro(i + 1))
@@ -274,7 +462,11 @@ def print_science_lab_intro(index=0):
         # Directly handle the science quiz once the science lab intro is over
         handle_science_quiz()
 
+        # Update the flag to indicate that the science lab intro has been shown
+        science_lab_intro_shown = True
+
         update_gui()
+
 
 
 
@@ -444,6 +636,104 @@ def print_after_quiz_text(index=0):
 
         update_gui()
 
+# Function to print the secret room introduction one sentence at a time with prompt for user input
+def print_secret_room_intro(index=0):
+    global secret_room_intro_shown  # Access the global variable
+
+    if index < len(SECRET_ROOM_INTRO):
+        intro_label.config(text=SECRET_ROOM_INTRO[index] + "\n\nPress Enter to continue")
+        root.bind("<Return>", lambda event, i=index: print_secret_room_intro(i + 1))
+    else:
+        intro_label.config(text="")
+        root.unbind("<Return>")  # Unbind the Enter key after the text is displayed
+
+        # Directly handle the secret room quiz once the secret room intro is over
+        handle_secret_room_quiz()
+
+        # Update the flag to indicate that the secret room intro has been shown
+        secret_room_intro_shown = True
+
+        update_gui()
+
+
+# Function to handle the secret room quiz
+def handle_secret_room_quiz():
+    global stamina_points, message_label, button_frame, game_state, stamina_label
+
+    quiz_window = tk.Toplevel(root)
+    quiz_window.title("Secret Room Quiz")
+
+    # Function to check the quiz answers
+    def check_secret_room_answers():
+        global quiz_attempts, stamina_points, message_label, stamina_label
+
+        # Get the selected answer for each question
+        selected_answers = [var.get() for var in secret_room_answer_vars]
+
+        # Check if all answers are correct
+        if all(selected_answer == question["correct_answer"] for selected_answer, question in zip(selected_answers, SECRET_ROOM_QUIZ_QUESTIONS)):
+            # Player answered all questions correctly
+            stamina_points = handle_event_with_animation(stamina_points, False)  # Update stamina (no animation after the quiz)
+            stamina_label.config(text="Stamina: {}".format(stamina_points))  # Update the stamina label
+            quiz_window.destroy()  # Close the quiz window
+
+            # Display the "\"Incredible! You have solved the riddles and proved yourself worthy to uncover the secret of this room.\"" message above the board one sentence at a time
+            print_after_secret_room_quiz_text()
+        else:
+            # Player got a question wrong, deduct 20 stamina points and ask to retry
+            stamina_points -= 20
+            stamina_label.config(text="Stamina: {}".format(stamina_points))  # Update the stamina label
+            message_label.config(text="Oh no you got a question wrong! You lost 20 stamina. Let's restart")
+            root.update_idletasks()
+            root.after(2000, lambda: message_label.config(text=""))
+            # Clear the selected answers
+            for var in secret_room_answer_vars:
+                var.set(None)
+
+    # Create answer variables for each secret room quiz question
+    secret_room_answer_vars = [tk.StringVar() for _ in SECRET_ROOM_QUIZ_QUESTIONS]
+
+    # Create secret room quiz questions and answer options
+    for index, question in enumerate(SECRET_ROOM_QUIZ_QUESTIONS):
+        secret_room_question_frame = tk.Frame(quiz_window)
+        secret_room_question_frame.pack(pady=10)
+
+        tk.Label(secret_room_question_frame, text=question["question"]).pack()
+
+        # Create answer options
+        for option in question["options"]:
+            tk.Radiobutton(secret_room_question_frame, text=option, variable=secret_room_answer_vars[index], value=option).pack(anchor="w")
+
+    # Create a button to check answers
+    check_secret_room_button = tk.Button(quiz_window, text="Check Answers", command=check_secret_room_answers)
+    check_secret_room_button.pack(pady=10)
+
+    # Update the game state to "secret_room_quiz" while the secret room quiz is displayed
+    game_state = "secret_room_quiz"
+
+
+def print_after_secret_room_quiz_text(index=0):
+    if index < len(AFTER_SECRET_ROOM_QUIZ_TEXT):
+        intro_label.config(text=AFTER_SECRET_ROOM_QUIZ_TEXT[index] + "\n\nPress Enter to continue")
+        root.bind("<Return>", lambda event, i=index: print_after_secret_room_quiz_text(i + 1))
+    else:
+        intro_label.config(text="")
+        root.unbind("<Return>")  # Unbind the Enter key after the text is displayed
+
+        # Display the thank you message after the secret room quiz is over
+        print_thank_you_message()
+
+
+
+def print_thank_you_message():
+    # Clear all elements from the GUI
+    for widget in root.winfo_children():
+        widget.destroy()
+    # Create a blank label to display the thank you message
+    thank_you_label = tk.Label(root, text="Thank you for playing the game!\n\nI hope you enjoyed the adventure!")
+    thank_you_label.pack()
+
+
 
 # Create the main window
 root = tk.Tk()
@@ -464,3 +754,4 @@ print_intro()
 
 # Start the GUI event loop
 root.mainloop()
+

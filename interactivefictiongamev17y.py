@@ -28,10 +28,13 @@ SCIENCE_LAB_INTRO = [
 
 # Additional text after the science quiz is completed
 AFTER_SCIENCE_QUIZ_TEXT = [
-    "\"Wow, you really know your stuff! I'm impressed! As promised, here's the secret I'll share with you...\"",
-    "Mr. Green opens a drawer and pulls out a small diary, handing it to you. \"This is Irene's personal diary. She often wrote her thoughts and feelings in here. Maybe it will provide some insight into her disappearance.\"",
-    "You thank Mr. Green for his help, and with the diary in your hand, you feel more determined to find Irene and unravel the mystery.",
-    "You leave the science lab and continue your search for Irene, following the clues left behind..."
+    "\"Wow, you really know your stuff! As promised, here's the secret I'll share with you...\"",
+    "Mr. Green opens a drawer and pulls out a small diary, handing it to you. \"This is Irene's personal diary that she left behind with her disappearance. She often wrote her thoughts and feelings in here. Maybe it will provide some insight into her disappearance.\"",
+    "You thank Mr. Green for his help, and open up the diary to read it.",
+    "You find many long, boring recounts of Irene's day over the past week. However, on the last page you find what seems to be a very complex math equation.",
+    "The page is titled 'abondoned hallway room'.",
+    "A code to a secret room...You think to yourself.",
+    "Unable to figure out the answer to the equation on your own, you decide to go to the math classroom to seek help with solving it"
 ]
 
 # Additional text for the art studio and Ms. Kay's introduction
@@ -83,19 +86,19 @@ QUIZ_QUESTIONS = [
 # List of science quiz questions and their possible answers
 SCIENCE_QUIZ_QUESTIONS = [
     {
-        "question": "What is the chemical symbol for water?",
-        "options": ["H2O", "CO2", "NaCl", "O2"],
-        "correct_answer": "H2O"
+        "question": "Where are the smallest bones in our body located?",
+        "options": ["Hands", "Feet", "Spine", "Ear"],
+        "correct_answer": "Ear"
     },
     {
-        "question": "Which gas do plants absorb from the atmosphere?",
-        "options": ["Oxygen", "Carbon dioxide", "Nitrogen", "Hydrogen"],
-        "correct_answer": "Carbon dioxide"
+        "question": "What organelle does photosynthesis occur in?",
+        "options": ["Chloroplast", "Nucleus", "Mitochondria", "Golgi body"],
+        "correct_answer": "Chloroplast"
     },
     {
-        "question": "What is the largest organ of the human body?",
-        "options": ["Liver", "Heart", "Skin", "Brain"],
-        "correct_answer": "Skin"
+        "question": "What is the most abundant gas in our atmosphere?",
+        "options": ["Oxygen", "Carbon dioxide", "Nitrogen", "Argon"],
+        "correct_answer": "Nitrogen"
     }
 ]
 
@@ -115,6 +118,9 @@ move_count = 0
 # Variable to keep track of quiz attempts
 quiz_attempts = 0
 
+# Global variable to track if the science lab intro has been shown
+science_lab_intro_shown = False
+
 # Declare animation_label, message_label, sandwich_photo, and warning_photo as global variables
 animation_label = None
 message_label = None
@@ -123,6 +129,10 @@ warning_photo = None
 
 # Global variable to track if the player has visited the art studio
 visited_art_studio = False
+
+# Global variable to track if the science lab intro has been shown
+science_lab_intro_shown = False
+
 
 # Global variable to track the game state
 game_state = "intro"  # Possible values: "intro", "art_studio_intro", "quiz", "gameplay"
@@ -148,7 +158,7 @@ def update_gui():
 
 # Function to handle user input from the GUI
 def on_choice_button_click(choice):
-    global current_row, current_column, stamina_points, visited_art_studio, move_count, visited_positions
+    global current_row, current_column, stamina_points, visited_art_studio, move_count, visited_positions, science_lab_intro_shown
 
     # Function to check if the new position is within the boundaries of the map
     def is_within_boundaries(row, col):
@@ -182,8 +192,11 @@ def on_choice_button_click(choice):
         if move_count == 3 and not visited_art_studio:
             visited_art_studio = True  # Set the flag to True after the art studio introduction is shown
             print_art_studio_intro()
-        elif move_count == 5:  # Check if the player has taken their 5th move and trigger the science lab intro
-            print_science_lab_intro()
+        if move_count == 5 and not visited_art_studio and not science_lab_intro_shown:
+            visited_art_studio = True  # Set the flag to True after the art studio introduction is shown
+            print_art_studio_intro()
+        elif move_count == 6 and not science_lab_intro_shown:
+            print_science_lab_intro()  # Show the science lab intro directly on the 6th move
         else:
             current_row, current_column = new_row, new_col
             stamina_points = handle_event_with_animation(stamina_points)
@@ -264,6 +277,8 @@ def print_after_science_quiz_text(index=0):
 
 # Function to print the science lab introduction one sentence at a time with prompt for user input
 def print_science_lab_intro(index=0):
+    global science_lab_intro_shown  # Access the global variable
+
     if index < len(SCIENCE_LAB_INTRO):
         intro_label.config(text=SCIENCE_LAB_INTRO[index] + "\n\nPress Enter to continue")
         root.bind("<Return>", lambda event, i=index: print_science_lab_intro(i + 1))
@@ -274,7 +289,11 @@ def print_science_lab_intro(index=0):
         # Directly handle the science quiz once the science lab intro is over
         handle_science_quiz()
 
+        # Update the flag to indicate that the science lab intro has been shown
+        science_lab_intro_shown = True
+
         update_gui()
+
 
 
 
