@@ -39,15 +39,11 @@ MATH_QUIZ_QUESTIONS = [
 # Introduction of game
 INTRO = [
     "Welcome to 'Where in Onslow College is Irene Indiana'.",
-    "You are a new student at Onslow College eager to learn, however, another student, 'Indiana Irene' has gone missing.",
-    "Everyone is worried about her, and school cannot resume unless she is found.",
-    "Your courageous self has taken the task to solve the mystery of her disappearance.",
-    "Around Onslow are teachers who you can talk with to collect clues, but, they won’t give up their information for free.",
-    "Complete their quizzes to find new clues that will lead you closer and closer to the truth.",
-    "But beware! Someone has set up booby traps around the school to prevent you from finding Irene.",
+    "You are a new student at Onslow College eager to learn, however, another student, 'Indiana Irene' has gone missing. Everyone is worried about her, and school cannot resume unless she is found.",
+    "Your courageous self has taken the task to solve the mystery of her disappearance. Around Onslow are teachers who you can talk with to collect clues, but, they won’t give up their information for free.",
+    "Complete their quizzes to find new clues that will lead you closer and closer to the truth. But beware! Someone has set up booby traps around the school to prevent you from finding Irene.",
     "These will diminish your stamina but don’t worry because you can also find food or other items around the school that will refill your stamina.",
-    "Stamina will also be essential for completing the teachers' quizzes.",
-    "Make sure that you always have some stamina because once your stamina runs out, you’ll be sent home and won’t be able to continue your investigation.",
+    "Stamina will also be essential for completing the teachers' quizzes. Make sure that you always have some stamina because once your stamina runs out, you’ll be sent home and won’t be able to continue your investigation.",
     "Good luck, brave student! Find Irene and save school!"
 ]
 
@@ -144,7 +140,8 @@ SECRET_ROOM_INTRO = [
     "To your shock, you discover a secret society gathering led by the evil and mad history teacher, Mr. Scrooge. Amongst the crowd, you catch a glimpse of Irene.",
     "\"Help me please! He’s insane!\" Irene pleads for your help.",
     "Facing the sinister Mr. Scrooge, you demand to know why he took Irene.",
-    "With a wicked grin, he says \"I don’t know who you are, but neither you nor Irene will stop me from achieving my goals. You want to know what Irene did to get herself here? I’ll tell you. She was too curious for her own good, she should have never discovered us, and she certainly should not have tried to stop us.",
+    "With a wicked grin, he says \"I don’t know who you are, but neither you nor Irene will stop me from achieving my goals. \"My plan is take over this entire school and then I shall finally be the most powerful teacher here again.",
+    "You want to know what Irene did to get herself here? I’ll tell you. She was too curious for her own good, she should have never discovered us, and she certainly should not have tried to stop us.",
     "You too will suffer the same fate as her...Unless! If you can complete my history quiz, one that no one has ever managed to conquer, then I will set you and Irene free.",
     "Your mind races with thoughts. It is a life-or-death wager. If you succeed, you and Irene shall be set free, but if you fail, you'll share Irene's fate in the cell.",
     "You tell him you’ll do it."
@@ -214,7 +211,6 @@ visited_art_studio = False
 # Global variable to track if the science lab intro has been shown
 science_lab_intro_shown = False
 
-
 # Global variable to track the game state
 game_state = "intro"  # Possible values: "intro", "art_studio_intro", "quiz", "gameplay"
 
@@ -232,14 +228,24 @@ def update_gui():
 
     stamina_label.config(text="Stamina: {}".format(stamina_points))
 
-    # Disable the movement buttons during the art studio intro
+    # Enable or disable the movement buttons based on the game state
+    button_state = "normal" if game_state == "gameplay" else "disabled"
     for widget in button_frame.winfo_children():
-        widget["state"] = "normal" if game_state == "gameplay" else "disabled"
-
+        widget["state"] = button_state
+    
 
 # Function to handle user input from the GUI
 def on_choice_button_click(choice):
-    global current_row, current_column, stamina_points, visited_art_studio, move_count, visited_positions, science_lab_intro_shown, secret_room_intro_shown
+    global current_row, current_column, stamina_points, visited_art_studio, move_count, visited_positions, science_lab_intro_shown, secret_room_intro_shown, game_state
+
+    message_label.config(text="")
+    root.update_idletasks()
+    
+    # Check if there is text being displayed or if a quiz window is open
+    if intro_label.cget("text") or 'quiz_window' in globals():
+        # Player cannot move when text is being displayed or during a quiz
+        display_cannot_move_message()
+        return
 
     # Function to check if the new position is within the boundaries of the map
     def is_within_boundaries(row, col):
@@ -276,18 +282,24 @@ def on_choice_button_click(choice):
         if move_count == 5 and not visited_art_studio and not science_lab_intro_shown:
             visited_art_studio = True  # Set the flag to True after the art studio introduction is shown
             print_art_studio_intro()
-        elif move_count == 6 and not science_lab_intro_shown:
+        if move_count == 6 and not science_lab_intro_shown:
             print_science_lab_intro()  # Show the science lab intro directly on the 6th move
-        elif move_count == 8 and not math_classroom_intro_shown:
+        if move_count == 7 and not science_lab_intro_shown:
+            print_science_lab_intro()
+        if move_count == 8 and not math_classroom_intro_shown:
             print_math_classroom_intro()  # Show the math classroom intro directly on the 8th move
-        elif move_count == 11 and not secret_room_intro_shown:
+        if move_count == 9 and not math_classroom_intro_shown:
+            print_math_classroom_intro()
+        if move_count == 11 and not secret_room_intro_shown:
+            print_secret_room_intro()
+        if move_count == 12 and not secret_room_intro_shown:
             print_secret_room_intro()
         else:
             current_row, current_column = new_row, new_col
             stamina_points = handle_event_with_animation(stamina_points)
     else:
         # Show the message if the new position is outside the map boundaries
-        message_label.config(text="You can't move that way now, please pick a different direction.")
+        message_label.config(text="You can't move that way now, please pick a different direction.",fg = "red")
         root.update_idletasks()
         root.after(2000, lambda: message_label.config(text=""))
 
@@ -326,39 +338,64 @@ def handle_math_quiz():
     quiz_window = tk.Toplevel(root)
     quiz_window.title("Math Quiz")
 
+    # Prompt the player to answer the questions
+    tk.Label(quiz_window, text="Answer these math questions to continue:").pack()
+
+    # List to store question labels to reference later
+    question_labels = []
+
     # Function to check the quiz answers
     def check_math_answers():
+        nonlocal question_labels  # Access the local variable in the outer scope
+
         global quiz_attempts, stamina_points, message_label, stamina_label, game_state
 
         # Get the selected answer for each question
         selected_answers = [var.get() for var in math_answer_vars]
 
-        # Check if all answers are correct
-        if all(selected_answer == question["correct_answer"] for selected_answer, question in zip(selected_answers, MATH_QUIZ_QUESTIONS)):
-            # Player answered all questions correctly
-            stamina_points = handle_event_with_animation(stamina_points, False)  # Update stamina (no animation after the quiz)
-            stamina_points += 20
-            message_label.config(text="You completed the quiz and got 20 stamina!")
-            root.after(1700, lambda: message_label.config(text=""))
-            stamina_label.config(text="Stamina: {}".format(stamina_points))  # Update the stamina label
-            quiz_window.destroy()  # Close the quiz window
+        # List to store incorrect question indices
+        incorrect_questions = []
 
-            # Display the "Wow! Looks like I don’t have much stuff to catch you up on." message above the board one sentence at a time
-            print_after_math_quiz_text()
-        else:
-            # Player got a question wrong, deduct 20 stamina points and ask to retry
-            stamina_points -= 20
+        # Check if any question is left unanswered
+        unanswered_questions = [i+1 for i, selected_answer in enumerate(selected_answers) if not selected_answer]
+        if unanswered_questions:
+            message_label.config(text="Please answer questions {} and try again.".format(", ".join(map(str, unanswered_questions))), fg="red")
+            return
+
+        # Check if all answers are correct
+        for index, (selected_answer, question) in enumerate(zip(selected_answers, MATH_QUIZ_QUESTIONS)):
+            if selected_answer != question["correct_answer"]:
+                incorrect_questions.append(index)
+        
+        # Update the message label to show which question(s) were incorrect and deduct 20 stamina points
+        if incorrect_questions:
+            stamina_points -= 10
             stamina_label.config(text="Stamina: {}".format(stamina_points))  # Update the stamina label
+
+            incorrect_question_text = "Question(s) {} are incorrect. You lost 10 stamina points.".format(
+                ", ".join(str(i+1) for i in incorrect_questions))
+
+            message_label.config(text=incorrect_question_text, fg = "red")
+            root.update_idletasks()
 
             if stamina_points <= 0:
                 handle_stamina_zero()
-            else:
-                message_label.config(text="Oh no you got a question wrong! You lost 20 stamina. Let's restart")
-                root.update_idletasks()
-                root.after(2000, lambda: message_label.config(text=""))
-                # Clear the selected answers
-                for var in math_answer_vars:
-                    var.set(None)
+        else:
+            # Player answered all questions correctly
+            stamina_points = handle_event_with_animation(stamina_points, False)  # Update stamina (no animation after the quiz)
+            stamina_points += 20
+            stamina_label.config(text="Stamina: {}".format(stamina_points))  # Update the stamina label
+            message_label.config(text="You completed the quiz and got 20 stamina!", fg = "green")
+            root.after(2000, lambda: message_label.config(text=""))
+
+            # Disable the "Check Answers" button after the quiz is completed
+            check_math_button.config(state="disabled")
+
+            # Destroy the quiz window after a delay
+            quiz_window.destroy()
+
+            # Display the "You're a math whiz!" message above the board one sentence at a time
+            print_after_math_quiz_text()
 
 
 
@@ -391,8 +428,8 @@ def print_after_math_quiz_text(index=0):
     else:
         intro_label.config(text="")
         root.unbind("<Return>")  # Unbind the Enter key after the text is displayed
-
         update_gui()
+        enable_arrow_key()
 
 
 
@@ -403,39 +440,60 @@ def handle_science_quiz():
     quiz_window = tk.Toplevel(root)
     quiz_window.title("Science Quiz")
 
+    # Prompt the player to answer the questions
+    tk.Label(quiz_window, text="Answer these science to continue questions:").pack()
+
+    # List to store question labels to reference later
+    question_labels = []
+
     # Function to check the quiz answers
     def check_science_answers():
+        nonlocal question_labels  # Access the local variable in the outer scope
+
         global quiz_attempts, stamina_points, message_label, stamina_label, game_state
 
         # Get the selected answer for each question
         selected_answers = [var.get() for var in science_answer_vars]
 
-        # Check if all answers are correct
-        if all(selected_answer == question["correct_answer"] for selected_answer, question in zip(selected_answers, SCIENCE_QUIZ_QUESTIONS)):
-            # Player answered all questions correctly
-            stamina_points = handle_event_with_animation(stamina_points, False)  # Update stamina (no animation after the quiz)
-            stamina_points += 20
-            message_label.config(text="You completed the quiz and got 20 stamina!")
-            root.after(1700, lambda: message_label.config(text=""))
-            stamina_label.config(text="Stamina: {}".format(stamina_points))  # Update the stamina label
-            quiz_window.destroy()  # Close the quiz window
+        # List to store incorrect question indices
+        incorrect_questions = []
 
-            # Display the "Wow, you really know your stuff!" message above the board one sentence at a time
-            print_after_science_quiz_text()
-        else:
-            # Player got a question wrong, deduct 20 stamina points and ask to retry
-            stamina_points -= 20
+        # Check if any question is left unanswered
+        unanswered_questions = [i+1 for i, selected_answer in enumerate(selected_answers) if not selected_answer]
+        if unanswered_questions:
+            message_label.config(text="Please answer questions {} and try again.".format(", ".join(map(str, unanswered_questions))), fg="red")
+            return
+
+
+        # Check if all answers are correct
+        for index, (selected_answer, question) in enumerate(zip(selected_answers, SCIENCE_QUIZ_QUESTIONS)):
+            if selected_answer != question["correct_answer"]:
+                incorrect_questions.append(index)
+        
+        # Update the message label to show which question(s) were incorrect and deduct 20 stamina points
+        if incorrect_questions:
+            stamina_points -= 10
             stamina_label.config(text="Stamina: {}".format(stamina_points))  # Update the stamina label
+
+            incorrect_question_text = "Question(s) {} are incorrect. You lost 10 stamina points.".format(
+                ", ".join(str(i+1) for i in incorrect_questions))
+
+            message_label.config(text=incorrect_question_text, fg = "red")
+            root.update_idletasks()
 
             if stamina_points <= 0:
                 handle_stamina_zero()
-            else:
-                message_label.config(text="Oh no you got a question wrong! You lost 20 stamina. Let's restart")
-                root.update_idletasks()
-                root.after(2000, lambda: message_label.config(text=""))
-                # Clear the selected answers
-                for var in science_answer_vars:
-                    var.set(None)
+        else:
+            # Player answered all questions correctly
+            stamina_points = handle_event_with_animation(stamina_points, False)  # Update stamina (no animation after the quiz)
+            stamina_points += 20
+            stamina_label.config(text="Stamina: {}".format(stamina_points))  # Update the stamina label
+            message_label.config(text="You completed the quiz and got 20 stamina!", fg = "green")
+            root.after(2000, lambda: message_label.config(text=""))
+
+            quiz_window.destroy()
+
+            print_after_science_quiz_text()
 
     # Create answer variables for each science quiz question
     science_answer_vars = [tk.StringVar() for _ in SCIENCE_QUIZ_QUESTIONS]
@@ -465,8 +523,8 @@ def print_after_science_quiz_text(index=0):
     else:
         intro_label.config(text="")
         root.unbind("<Return>")  # Unbind the Enter key after the text is displayed
-
         update_gui()
+        enable_arrow_key()
 
 
 # Function to print the science lab introduction one sentence at a time with prompt for user input
@@ -503,37 +561,47 @@ def load_warning_image():
     warning_img = warning_img.resize((50, 50))  # Resize the image
     return ImageTk.PhotoImage(warning_img)
 
+# Variable to keep track of location found count
+location_found_count = 0
+
 # Function to handle finding items or encountering traps with animation
 def handle_event_with_animation(stamina_points, show_animation=True):
-    global animation_label, message_label, sandwich_photo, warning_photo  # Access the global variables
+    global animation_label, message_label, sandwich_photo, warning_photo, location_found_count  # Access the global variables
 
     # If show_animation is False, then no animation will be shown
     if not show_animation:
         return stamina_points
-    if random.random() <= 0.25:
-        event = random.choice(["item", "trap"])
-        if event == "item":
-            stamina_points += 20
-            # Show sandwich animation
-            animation_label.config(image=sandwich_photo)
-            message_label.config(text="You found a sandwich! You ate it and gained 20 stamina points!")
-            root.update_idletasks()
-            root.after(1500, lambda: animation_label.config(image=""))
-            root.after(1500, lambda: message_label.config(text=""))
-        elif event == "trap":
-            stamina_points -= 20
-            # Show warning animation
-            animation_label.config(image=warning_photo)
-            message_label.config(text="You encountered a trap! You tripped and lost 20 stamina points!")
-            root.update_idletasks()
-            root.after(1500, lambda: animation_label.config(image=""))
-            root.after(1500, lambda: message_label.config(text=""))
+
+    # Check if the location should trigger an event
+    if move_count in [3, 6, 9, 13]:
+        location_found_count += 1
+    else:
+        if random.random() <= 0.25:
+            event = random.choice(["item", "trap"])
+            if event == "item":
+                stamina_points += 20
+                # Show sandwich animation
+                animation_label.config(image=sandwich_photo)
+                message_label.config(text="You found a sandwich! You ate it and gained 20 stamina points!", fg="green")
+                root.update_idletasks()
+                root.after(2000, lambda: animation_label.config(image=""))
+                root.after(2000, lambda: message_label.config(text=""))
+            elif event == "trap":
+                stamina_points -= 20
+                # Show warning animation
+                animation_label.config(image=warning_photo)
+                message_label.config(text="You encountered a trap! You tripped and lost 20 stamina points!", fg="red")
+                root.update_idletasks()
+                root.after(2000, lambda: animation_label.config(image=""))
+                root.after(2000, lambda: message_label.config(text=""))
+
     return stamina_points
+
 
 
 # Function to print the introduction one sentence at a time with prompt for user input
 def print_intro(index=0):
-    global animation_label, sandwich_photo, warning_photo, game_state  # Access the global variables
+    global animation_label, sandwich_photo, warning_photo, game_state, move_count  # Access the global variables
     if index < len(INTRO):
         intro_label.config(text=INTRO[index] + "\n\nPress Enter to continue")
         root.bind("<Return>", lambda event, i=index: print_intro(i + 1))  # Bind Enter key to proceed to the next sentence
@@ -561,7 +629,10 @@ def print_intro(index=0):
 
         # Update the game state to "gameplay" after the introduction is over
         game_state = "gameplay"
-
+        enable_arrow_key()
+        if move_count == 0:
+            message_label.config(text="Please use the buttons or arrow keys to move.", fg="blue")
+            root.update_idletasks()
         update_gui()  # Show the map, stamina counter, and controls
 
 
@@ -579,7 +650,6 @@ def print_art_studio_intro(index=0):
 
         # Directly handle the quiz once the art studio intro is over
         handle_quiz()
-
         update_gui()
 
     
@@ -590,41 +660,64 @@ def handle_quiz():
     quiz_window = tk.Toplevel(root)
     quiz_window.title("Art Quiz")
 
+    # Prompt the player to answer the questions
+    tk.Label(quiz_window, text="Answer these art questions to continute:").pack()
+
+
+    # List to store question labels to reference later
+    question_labels = []
+
     # Function to check the quiz answers
     def check_answers():
+        nonlocal question_labels  # Access the local variable in the outer scope
+
         global quiz_attempts, stamina_points, message_label, stamina_label, game_state
 
         # Get the selected answer for each question
         selected_answers = [var.get() for var in answer_vars]
 
+        # List to store incorrect question indices
+        incorrect_questions = []
+
+        # Check if any question is left unanswered
+        unanswered_questions = [i+1 for i, selected_answer in enumerate(selected_answers) if not selected_answer]
+        if unanswered_questions:
+            message_label.config(text="Please answer questions {} and try again.".format(", ".join(map(str, unanswered_questions))), fg="red")
+            return
+
         # Check if all answers are correct
-        if all(selected_answer == question["correct_answer"] for selected_answer, question in zip(selected_answers, QUIZ_QUESTIONS)):
+        for index, (selected_answer, question) in enumerate(zip(selected_answers, QUIZ_QUESTIONS)):
+            if selected_answer != question["correct_answer"]:
+                incorrect_questions.append(index)
+        
+        # Update the message label to show which question(s) were incorrect and deduct 20 stamina points
+        if incorrect_questions:
+            stamina_points -= 10
+            stamina_label.config(text="Stamina: {}".format(stamina_points))  # Update the stamina label
+
+            incorrect_question_text = "Question(s) {} are incorrect. You lost 10 stamina points.".format(
+                ", ".join(str(i+1) for i in incorrect_questions))
+
+            message_label.config(text=incorrect_question_text, fg = "red")
+            root.update_idletasks()
+
+            if stamina_points <= 0:
+                handle_stamina_zero()
+        else:
             # Player answered all questions correctly
             stamina_points = handle_event_with_animation(stamina_points, False)  # Update stamina (no animation after the quiz)
             stamina_points += 20
             stamina_label.config(text="Stamina: {}".format(stamina_points))  # Update the stamina label
-            message_label.config(text="You completed the quiz and got 20 stamina!")
-            root.after(1700, lambda: message_label.config(text=""))
+            message_label.config(text="You completed the quiz and got 20 stamina!", fg = "green")
+            root.after(2000, lambda: message_label.config(text=""))
 
-            quiz_window.destroy()  # Close the quiz window
+            # Disable the "Check Answers" button after the quiz is completed
+            check_button.config(state="disabled")
+
+            quiz_window.destroy()
 
             # Display the "Impressive!" message above the board one sentence at a time
             print_after_quiz_text()
-        else:
-            # Player got a question wrong, deduct 20 stamina points and ask to retry
-            stamina_points -= 20
-            stamina_label.config(text="Stamina: {}".format(stamina_points))  # Update the stamina label
-
-            if stamina_points <= 0:
-                handle_stamina_zero()
-            else:
-                message_label.config(text="Oh no you got a question wrong! You lost 20 stamina. Let's restart")
-                root.update_idletasks()
-                root.after(2000, lambda: message_label.config(text=""))
-                # Clear the selected answers
-                for var in answer_vars:
-                    var.set(None)
-
 
     # Create answer variables for each question
     answer_vars = [tk.StringVar() for _ in QUIZ_QUESTIONS]
@@ -634,7 +727,9 @@ def handle_quiz():
         question_frame = tk.Frame(quiz_window)
         question_frame.pack(pady=10)
 
-        tk.Label(question_frame, text=question["question"]).pack()
+        question_label = tk.Label(question_frame, text=question["question"])
+        question_label.pack()
+        question_labels.append(question_label)  # Store question label for later reference
 
         # Create answer options
         for option in question["options"]:
@@ -655,8 +750,8 @@ def print_after_quiz_text(index=0):
     else:
         intro_label.config(text="")
         root.unbind("<Return>")  # Unbind the Enter key after the text is displayed
-
         update_gui()
+        enable_arrow_key()
 
 # Function to print the secret room introduction one sentence at a time with prompt for user input
 def print_secret_room_intro(index=0):
@@ -683,55 +778,87 @@ def handle_secret_room_quiz():
     global stamina_points, message_label, button_frame, game_state, stamina_label
 
     quiz_window = tk.Toplevel(root)
-    quiz_window.title("Secret Room Quiz")
+    quiz_window.title("Secret Room")
+
+    # List to store question labels to reference later
+    question_labels = []
 
     # Function to check the quiz answers
-    def check_secret_room_answers():
-        global quiz_attempts, stamina_points, message_label, stamina_label
+    def check_secret_answers():
+        nonlocal question_labels  # Access the local variable in the outer scope
+
+        global quiz_attempts, stamina_points, message_label, stamina_label, game_state
 
         # Get the selected answer for each question
-        selected_answers = [var.get() for var in secret_room_answer_vars]
+        selected_answers = [var.get() for var in secret_answer_vars]
+
+        # List to store incorrect question indices
+        incorrect_questions = []
+
+        # Check if any question is left unanswered
+        unanswered_questions = [i+1 for i, selected_answer in enumerate(selected_answers) if not selected_answer]
+        if unanswered_questions:
+            message_label.config(text="Please answer questions {} and try again.".format(", ".join(map(str, unanswered_questions))), fg="red")
+            return
 
         # Check if all answers are correct
-        if all(selected_answer == question["correct_answer"] for selected_answer, question in zip(selected_answers, SECRET_ROOM_QUIZ_QUESTIONS)):
+        for index, (selected_answer, question) in enumerate(zip(selected_answers, SECRET_ROOM_QUIZ_QUESTIONS)):
+            if selected_answer != question["correct_answer"]:
+                incorrect_questions.append(index)
+
+        # Update the message label to show which question(s) were incorrect and deduct 20 stamina points
+        if incorrect_questions:
+            stamina_points -= 10
+            stamina_label.config(text="Stamina: {}".format(stamina_points))  # Update the stamina label
+
+            incorrect_question_text = "Question(s) {} are incorrect. You lost 10 stamina points.".format(
+                ", ".join(str(i + 1) for i in incorrect_questions))
+
+            message_label.config(text=incorrect_question_text, fg = "red")
+            root.update_idletasks()
+
+            if stamina_points <= 0:
+                handle_stamina_zero()
+        else:
             # Player answered all questions correctly
             stamina_points = handle_event_with_animation(stamina_points, False)  # Update stamina (no animation after the quiz)
+            stamina_points += 20
             stamina_label.config(text="Stamina: {}".format(stamina_points))  # Update the stamina label
-            quiz_window.destroy()  # Close the quiz window
-
-            # Display the "\"Incredible! You have solved the riddles and proved yourself worthy to uncover the secret of this room.\"" message above the board one sentence at a time
-            print_after_secret_room_quiz_text()
-        else:
-            # Player got a question wrong, deduct 20 stamina points and ask to retry
-            stamina_points -= 20
-            stamina_label.config(text="Stamina: {}".format(stamina_points))  # Update the stamina label
-            message_label.config(text="Oh no you got a question wrong! You lost 20 stamina. Let's restart")
-            root.update_idletasks()
+            message_label.config(text="You completed the secret room quiz and got 20 stamina!", fg = "green")
             root.after(2000, lambda: message_label.config(text=""))
-            # Clear the selected answers
-            for var in secret_room_answer_vars:
-                var.set(None)
+
+            # Disable the "Check Answers" button after the quiz is completed
+            check_secret_button.config(state="disabled")
+
+            # Destroy the quiz window after a delay
+            quiz_window.destroy()
+
+            # Display the "Unbelievable! You made it through all the challenges successfully!" message above the board one sentence at a time
+            print_after_secret_room_quiz_text()
 
     # Create answer variables for each secret room quiz question
-    secret_room_answer_vars = [tk.StringVar() for _ in SECRET_ROOM_QUIZ_QUESTIONS]
+    secret_answer_vars = [tk.StringVar() for _ in SECRET_ROOM_QUIZ_QUESTIONS]
 
     # Create secret room quiz questions and answer options
     for index, question in enumerate(SECRET_ROOM_QUIZ_QUESTIONS):
-        secret_room_question_frame = tk.Frame(quiz_window)
-        secret_room_question_frame.pack(pady=10)
+        secret_question_frame = tk.Frame(quiz_window)
+        secret_question_frame.pack(pady=10)
 
-        tk.Label(secret_room_question_frame, text=question["question"]).pack()
+        question_label = tk.Label(secret_question_frame, text=question["question"])
+        question_label.pack()
+        question_labels.append(question_label)  # Store question label for later reference
 
         # Create answer options
         for option in question["options"]:
-            tk.Radiobutton(secret_room_question_frame, text=option, variable=secret_room_answer_vars[index], value=option).pack(anchor="w")
+            tk.Radiobutton(secret_question_frame, text=option, variable=secret_answer_vars[index], value=option).pack(anchor="w")
 
     # Create a button to check answers
-    check_secret_room_button = tk.Button(quiz_window, text="Check Answers", command=check_secret_room_answers)
-    check_secret_room_button.pack(pady=10)
+    check_secret_button = tk.Button(quiz_window, text="Check Answers", command=check_secret_answers)
+    check_secret_button.pack(pady=10)
 
-    # Update the game state to "secret_room_quiz" while the secret room quiz is displayed
-    game_state = "secret_room_quiz"
+    # Update the game state to "secret_room" while the secret room quiz is displayed
+    game_state = "secret_room"
+
 
 
 def print_after_secret_room_quiz_text(index=0):
@@ -767,10 +894,16 @@ def handle_stamina_zero():
 
     # List of lines to be displayed one at a time
     message_lines = [
-        "Oh no! You've lost all your stamina.",
-        "You fainted and were sent home by the school nurse.",
+        "Oh no! You've lost all your stamina. You fainted and were sent home by the school nurse.",
         "Your search for Irene has sadly ended, and now you will never know what happened to her...",
         "Thank you for playing the game!"
+    ]
+
+    message_lines_2 = [
+        "Oh no! You failed to complete the final quiz and lost all of your stamina.",
+        "Mr. Scrooge locked you up and his secret society took control over Onslow.",
+        "Sadly, your journey to bring back Irene was not successful.",
+        "GAME OVER."
     ]
 
     # Function to display the lines one at a time
@@ -781,13 +914,52 @@ def handle_stamina_zero():
         else:
             root.unbind("<Return>")  # Unbind the Enter key after the text is displayed
             print_thank_you_message()  # Display the thank you message after the stamina zero message is over
+    def display_line_2(index=0):
+        if index < len(message_lines_2):
+            stamina_zero_label.config(text=message_lines_2[index] + "\n\nPress Enter to continue")
+            root.bind("<Return>", lambda event, i=index: display_line_2(i + 1))
+        else:
+            root.unbind("<Return>")  # Unbind the Enter key after the text is displayed
+            print_thank_you_message()  # Display the thank you message after the stamina zero message is over
+
 
     # Start displaying the lines
-    display_line()
+    if move_count == 11:
+        display_line_2()
+    else:
+        display_line()
 
 # Create the main window
 root = tk.Tk()
 root.title("Where in Onslow College is Irene Indiana")
+
+# Function to handle arrow key movements
+def on_arrow_key(event):
+    if event.keysym == "Up":
+        on_choice_button_click(OPTIONS["Move up 1 square"])
+    elif event.keysym == "Down":
+        on_choice_button_click(OPTIONS["Move down 1 square"])
+    elif event.keysym == "Left":
+        on_choice_button_click(OPTIONS["Move left 1 square"])
+    elif event.keysym == "Right":
+        on_choice_button_click(OPTIONS["Move right 1 square"])
+
+# Bind the arrow keys to the on_arrow_key function
+def enable_arrow_key():
+    root.bind("<Up>", on_arrow_key)
+    root.bind("<Down>", on_arrow_key)
+    root.bind("<Left>", on_arrow_key)
+    root.bind("<Right>", on_arrow_key)
+
+# Add this function to display the "cannot move" message
+def display_cannot_move_message():
+    global message_label
+    message_label.config(text="You cannot move right now. Please finish your current event and try again.", fg="red")
+    root.update_idletasks()
+    root.after(2000, lambda: message_label.config(text=""))
+
+# Create and place the direction label
+direction_label = tk.Label(root, text="Please pick a direction to move in")
 
 # Create and place GUI elements
 intro_label = tk.Label(root, text="", wraplength=400)
@@ -798,10 +970,9 @@ map_label.pack()
 
 stamina_label = tk.Label(root, text="Stamina: {}".format(stamina_points))
 stamina_label.pack()
-
+    
 # Start printing the introduction
 print_intro()
 
 # Start the GUI event loop
 root.mainloop()
-
